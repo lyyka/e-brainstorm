@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
+
+body{
+    font-family: 'Montserrat', sans-serif;
+}
+
+.absolute-middle-center{
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.cursor-pointer{
+    cursor: pointer;
+}
+
+.remove-underline{
+    text-decoration: none !important;
+}
+
+/* Colors */
+.pink-bg{
+    background-color: #FF008A !important;
+}
+.pink-text{
+    color: #FF008A !important;
+}

@@ -1,0 +1,36 @@
+extends templates/template
+
+block content
+    div(class = "container mt-5")
+        div(class = "row mb-5")
+            div(class = "col-lg-6")
+                h1 Create new session
+                p(class = "text-muted") You can create new session by clicking on the button on the right side. You will get your session code which other users can use to join the sessions. Once you are happy with the number of people joined, you can click to start the session.
+            div(class = "col-lg-6")
+                button(
+                    id = "create_new_session_btn"
+                    class = "rounded shadow-sm border w-100 py-2 pink-bg text-white"
+                ) Click to get session code!
+                div(id="room_info_wrapper")
+        hr
+        div(class = "row mt-5 mb-5")
+            div(class = "col-lg-6")
+                h1 Join a session
+                p(class = "text-muted") Request a session code from your group, paste it in the input field on the right, and join their brainstorming session!
+            div(class = "col-lg-6")
+                form(action="/room/join", method="post")
+                    input(type="text" name="code" placeholder="Session code" class = "w-100 rounded shadow-sm border mb-2 py-2 px-3")
+                    button(
+                        type="submit" id="join-existing-session" class = "text-white pink-bg rounded shadow-sm border mb-4 py-2 px-3"
+                    ) Join
+
+block scripts
+    //- Fontawesome kit
+    script(src="https://kit.fontawesome.com/9122b51f87.js" crossorigin="anonymous")
+    
+    //- Socket.io
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js")
+
+    //- My scripts
+    script(src="/javascript/separate_room_code.js")
+    script(src="/javascript/queue/create.js")
