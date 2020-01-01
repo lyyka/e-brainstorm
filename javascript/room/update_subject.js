@@ -11,9 +11,7 @@ function docReady(fn) {
 docReady(onLoad)
 
 function onLoad(e){
-    socket.emit("get_room_subject", {
-        room: roomCode
-    }, subjectUpdated)
+    socket.emit("get_room_subject", subjectUpdated)
     socket.on("subject_changed", subjectUpdated)
     document.getElementById("update-subject").addEventListener("click", updateSubject)
 }
@@ -23,15 +21,17 @@ function updateSubject(e){
     const subject = document.getElementById("update-subject-input").value
     // Emit the subject change event
     socket.emit("update_room_subject", {
-        room: roomCode,
         subject: subject
     }, subjectUpdated)
     $("#changeSubjectModal").modal("hide")
 }
 
-function subjectUpdated(data){
+function subjectUpdated(subject){
     // Make new text
-    const new_title = document.createTextNode(data.subject)
+    const new_title = document.createTextNode(subject)
+
+    // Set the text on subject update field
+    document.getElementById("update-subject-input").value = subject;
 
     // Take span element and clear it
     const title_el = document.getElementById("brainstorming-subject-title")

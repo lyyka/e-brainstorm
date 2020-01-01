@@ -31,7 +31,7 @@ class RoomsController{
             // Empty (new) room data
             const room_object = {
                 roomCode: room,
-                users: [],
+                users_count: 0,
                 ideas: [],
                 subject: "General Brainstorming"
             }
@@ -64,8 +64,15 @@ class RoomsController{
     join_room(req, res){
         const code = req.params.code
         if(this.rooms[code] != null){
+            // Increase the number of users in the room
+            this.rooms[code].room.users_count++
+            // Emit the new users count to all
+            this.rooms[code].io.to(code).emit("update_users_count", {
+                users_count: this.rooms[code].room.users_count
+            })
             res.render("room", {
-                room_code: code
+                room_code: code,
+                users_count: this.rooms[code].room.users_count
             })
         }
         else{

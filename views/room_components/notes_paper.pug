@@ -1,0 +1,17 @@
+//- div(id="notes-paper" class = "position-fixed w-100 h-100 d-none")
+//-     div(class="rounded shadow-sm border px-3 py-2 position-absolute absolute-middle-center bg-white")
+//-         p(class="text-right")
+//-             i(class="fas fa-times cursor-pointer" id = "close-notes-paper")
+//-         h3 Notes
+//-         textarea(rows="20" class="w-100 rounded shadow-sm border p-2")
+//-         p(class="text-muted") Notes you take are hidden from others and are available only to you
+<!-- Modal -->
+div(class="modal fade" id="notesPaperModal" tabindex="-1" role="dialog" aria-labelledby="notesPaperModalTitle" aria-hidden="true")
+    div(class="modal-dialog modal-dialog-centered" role="document")
+        div(class="modal-content")
+            div(class="modal-header")
+                h5(class="modal-title" id="notesPaperModalTitle") Notes
+                button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                    span(aria-hidden="true") &times;
+            div(class="modal-body")
+                textarea(class="w-100 rounded shadow-sm border p-2")

@@ -15,7 +15,7 @@ socket.on('connect_error', (error) => {
     console.log(error)
 });
 socket.on("connect", () => {
-    console.log(socket.connected)
+    console.log("You have connected successfully!")
 })
 socket.on('disconnect', () => {
     socket.open();
@@ -24,3 +24,14 @@ socket.on('disconnect', () => {
 function onLoad(e){
     document.getElementById("room-code-text").innerText = separateRoomCode(roomCode)
 }
+
+// When users leave the page
+window.onbeforeunload = function(){
+    socket.emit("decrease_users_count");
+}
+
+// Users count
+socket.on("update_users_count", function(data){
+    const users_count = data.users_count
+    document.getElementById('users_count').innerText = `${users_count} people brainstorming`
+});

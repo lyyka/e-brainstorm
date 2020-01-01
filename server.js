@@ -41,6 +41,6 @@ router.app = app
 router.init_router()
 
 // Start the App
-server.listen(process.env.PORT, () => {
+server.listen(process.env.PORT || 80, "0.0.0.0", () => {
     console.log("App started on port " + process.env.PORT)
 })
