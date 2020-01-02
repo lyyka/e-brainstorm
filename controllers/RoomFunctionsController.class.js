@@ -22,9 +22,7 @@ class RoomFunctionsController{
         const subject = data.subject
         this.room.subject = subject
         // Emit the event to others in the room
-        this.io.to(this.room.roomCode).emit("subject_changed", {
-            subject: subject
-        })
+        this.io.to(this.room.roomCode).emit("subject_changed", subject)
         callback(subject)
     }
 
@@ -47,6 +45,7 @@ class RoomFunctionsController{
     add_idea_to_room(data){
         this.room.ideas.push(data.idea)
         this.io.to(this.room.roomCode).emit("new_idea_uploaded", {
+            ideas_count: this.room.ideas.length,
             idea: data.idea
         });
     }
@@ -71,4 +70,4 @@ class RoomFunctionsController{
     }
 }
 
-module.exports = new RoomFunctionsController()
+module.exports = RoomFunctionsController

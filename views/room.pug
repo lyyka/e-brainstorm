@@ -25,13 +25,14 @@ block content
         div(class="text-right mb-3")
             a(href="/" class="d-inline-block px-3 text-center remove-underline rounded shadow-sm border py-2 pink-bg text-white")
                 | Leave Room
-        //- Shows current brainstorming subject and a button to open up the modal
-        h3 
-            span(id="brainstorming-subject-title") What's the brainstorming subject?
-            button(type="button" class = "bg-transparent border-0" data-toggle="modal" data-target="#changeSubjectModal")
-                i(class="ml-2 far fa-edit pink-text cursor-pointer")
-        //- Show users count
-        p(id="users_count" class="text-muted")
+        div(class="rounded shadow-sm border p-4 my-3 bg-white")
+            //- Shows current brainstorming subject and a button to open up the modal
+            h3 
+                span(id="brainstorming-subject-title") What's the brainstorming subject?
+                button(type="button" class = "bg-transparent border-0" data-toggle="modal" data-target="#changeSubjectModal")
+                    i(class="ml-2 far fa-edit pink-text cursor-pointer")
+            //- Show users count
+            p(id="users_count" class="text-muted mb-0")
 
         //- Ideas panel
         include room_components/ideas_panel

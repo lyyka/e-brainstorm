@@ -23,24 +23,23 @@ class RoomsController{
                 for (var i = 0; i < 8; i++)
                     room += possible.charAt(Math.floor(Math.random() * possible.length));
 
-                if (this.rooms[room] == null) {
-                    generated = true;
-                }
+                
+                generated = this.rooms[room] == null;
+                
             }
 
-            // Empty (new) room data
-            const room_object = {
-                roomCode: room,
-                users_count: 0,
-                ideas: [],
-                subject: "General Brainstorming"
-            }
             console.log(`New room created: ${room}`)
 
             // Create new controller with new namespace for each room
-            const room_functions = require('./RoomFunctionsController.class.js')
-            // pass room data
-            room_functions.room = room_object
+            const RoomFunctionsController = require('./RoomFunctionsController.class.js')
+            const room_functions = new RoomFunctionsController()
+            // Empty room data
+            room_functions.room = {
+                roomCode: room,
+                users_count: 0,
+                ideas: [],
+                subject: "Brainstorm!"
+            }
             // pass new io namespace
             room_functions.io = this.io.of(`/room/${room}`)
             // bind on connection for that io namespace
@@ -48,6 +47,8 @@ class RoomsController{
 
             // Store the room controller under a room code in this controller
             this.rooms[room] = room_functions
+
+            console.log(this.rooms)
 
             callback({
                 success: true,
@@ -66,6 +67,7 @@ class RoomsController{
         if(this.rooms[code] != null){
             // Increase the number of users in the room
             this.rooms[code].room.users_count++
+            console.log(this.rooms[code].room.ideas)
             // Emit the new users count to all
             this.rooms[code].io.to(code).emit("update_users_count", {
                 users_count: this.rooms[code].room.users_count

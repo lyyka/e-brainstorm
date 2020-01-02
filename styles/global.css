@@ -4,6 +4,11 @@ body{
     font-family: 'Montserrat', sans-serif;
     width: 100%;
     height: 100%;
+    background-color: #f1f1f1;
+}
+
+#idea-input{
+    border: 1px solid #c9c9c9;
 }
 
 .absolute-middle-center{
