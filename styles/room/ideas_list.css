@@ -1,0 +1,14 @@
+.idea-block{
+    /* height: 250px; */
+    width: 260px;
+}
+.idea-block-body{
+    height: 200px;
+    overflow-y: auto;
+    word-wrap: normal;
+}
+.idea-block-footer{
+    height: 30px;
+    overflow-y: auto;
+    word-wrap: normal;
+}

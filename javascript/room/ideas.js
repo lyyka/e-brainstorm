@@ -58,14 +58,73 @@ function setStatusTextAndImage(ideas_list_len){
     }
 }
 
+// add points to each note
+// sort by points
 function addIdeaToList(idea){
+    // idea = {text: .... , date: Date.now()}
+    const bg_classes = ['dark-green-bg', 'light-green-bg', 'orange-bg', 'pink-pastel-bg'];
+    var bg_class = bg_classes[Math.floor(Math.random() * bg_classes.length)]
+
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+    // Where all ideas go
     const ideas_wrap = document.getElementById("ideas-panel")
+
+    // Block that holds new idea
     const new_idea_block = document.createElement("div")
-    new_idea_block.classList.add("rounded", "shadow-sm", "py-2", "px-3", "mb-3", "mr-3", "d-inline-block", "border")
+    new_idea_block.classList.add("position-relative", "idea-block", "shadow-sm", "py-2", "px-3", "mb-3", "mr-3", "d-inline-block", "border", bg_class)
+
+    // Idea block header (for up and down buttons)
+    const idea_block_header = document.createElement("div");
+    idea_block_header.classList.add("idea-block-header");
+
+    const arrows_p = document.createElement("p");
+    arrows_p.classList.add("text-right");
+    const arrow_up = document.createElement("i");
+    arrow_up.classList.add("fas", "fa-arrow-up", "mr-2", "text-muted", "cursor-pointer");
+    const arrow_down = document.createElement("i");
+    arrow_down.classList.add("fas", "fa-arrow-down", "mr-2", "text-muted", "cursor-pointer");
+    const points_span = document.createElement("span");
+    points_span.innerText = idea.points
+
+    arrows_p.appendChild(arrow_up);
+    arrows_p.appendChild(arrow_down);
+    arrows_p.appendChild(points_span);
+    idea_block_header.appendChild(arrows_p);
+
+    // Idea block body (for text)
+    const idea_block_body = document.createElement("div");
+    idea_block_body.classList.add("idea-block-body");
+
+    // New idea text
     const idea_par = document.createElement("p")
     idea_par.classList.add("mb-0")
-    const idea_text = document.createTextNode(idea)
+    const idea_text = document.createTextNode(idea.text)
     idea_par.appendChild(idea_text)
-    new_idea_block.appendChild(idea_par)
+
+    // Add text to idea body block
+    idea_block_body.appendChild(idea_par)
+
+    // Idea block footer (for date)
+    const idea_block_footer = document.createElement("div");
+    idea_block_footer.classList.add("idea-block-footer");
+
+    // Idea date text
+    const date = new Date(idea.date);
+    const date_par = document.createElement("p")
+    date_par.classList.add("text-muted");
+    date_par.classList.add("mb-0")
+    const date_text = document.createTextNode(days[date.getDay()] + " " + date.getDay() + "/" + date.getMonth() + ", " + date.getHours() + ":" + date.getMinutes())
+    date_par.appendChild(date_text)
+
+    // Add date text to footer
+    idea_block_footer.appendChild(date_par);
+
+    // Construct the whole block
+    new_idea_block.appendChild(idea_block_header);
+    new_idea_block.appendChild(idea_block_body);
+    new_idea_block.appendChild(idea_block_footer);
+
+    // Add idea block to main wrapper
     ideas_wrap.prepend(new_idea_block)
 }

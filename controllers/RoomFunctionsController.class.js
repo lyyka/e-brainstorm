@@ -43,10 +43,15 @@ class RoomFunctionsController{
 
     // Adds the idea to room
     add_idea_to_room(data){
-        this.room.ideas.push(data.idea)
+        const new_idea = {
+            text: data.idea,
+            date: Date.now(),
+            points: 0
+        };
+        this.room.ideas.push(new_idea)
         this.io.to(this.room.roomCode).emit("new_idea_uploaded", {
             ideas_count: this.room.ideas.length,
-            idea: data.idea
+            idea: new_idea
         });
     }
 
