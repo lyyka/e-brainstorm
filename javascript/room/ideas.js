@@ -40,7 +40,7 @@ function loadExistingIdeas(data){
 }
 
 function setStatusTextAndImage(ideas_list_len){
-    document.getElementById("ideas-count-text").innerText = `${ideas_list_len} ideas posted`
+    document.getElementById("ideas-count-text").innerText = `${ideas_list_len} idea(s) posted`
     if(ideas_list_len == 0){
         const img_wrap = document.createElement("div")
         img_wrap.id = "no-ideas-img"
