@@ -13,6 +13,8 @@ docReady(onLoad)
 function onLoad(e) {
     document.getElementById("send-idea").addEventListener("click", sendIdea)
     socket.on('new_idea_uploaded', newIdeaReceived);
+    socket.on('point_added', pointAddedReceived);
+    socket.on('point_removed', pointRemovedReceived);
     socket.emit('get_ideas', loadExistingIdeas)
 }
 
@@ -72,6 +74,7 @@ function addIdeaToList(idea){
 
     // Block that holds new idea
     const new_idea_block = document.createElement("div")
+    new_idea_block.setAttribute('id', idea.id);
     new_idea_block.classList.add("position-relative", "idea-block", "shadow-sm", "py-2", "px-3", "mb-3", "mr-3", "d-inline-block", "border", bg_class)
 
     // Idea block header (for up and down buttons)
@@ -82,9 +85,14 @@ function addIdeaToList(idea){
     arrows_p.classList.add("text-right");
     const arrow_up = document.createElement("i");
     arrow_up.classList.add("fas", "fa-arrow-up", "mr-2", "text-muted", "cursor-pointer");
+    arrow_up.setAttribute("data-id", idea.id);
+    arrow_up.addEventListener("click", add_point_to_idea);
     const arrow_down = document.createElement("i");
     arrow_down.classList.add("fas", "fa-arrow-down", "mr-2", "text-muted", "cursor-pointer");
+    arrow_down.setAttribute("data-id", idea.id);
+    arrow_down.addEventListener("click", remove_point_from_idea);
     const points_span = document.createElement("span");
+    points_span.classList.add("idea-points");
     points_span.innerText = idea.points
 
     arrows_p.appendChild(arrow_up);
@@ -127,4 +135,52 @@ function addIdeaToList(idea){
 
     // Add idea block to main wrapper
     ideas_wrap.prepend(new_idea_block)
+}
+
+// When a user adds a point
+function add_point_to_idea(e){
+    // const existing_points = this.parentNode.childNodes[2].innerText;
+    // this.parentNode.childNodes[2].innerText = Number(existing_points) + 1
+    const id = this.getAttribute("data-id");
+    socket.emit("add_point", {
+        idea_id: id
+    });
+}
+
+// Callback to be called when someone else adds a point
+function pointAddedReceived(data){
+    const ideas_wrap = document.getElementById("ideas-panel")
+    let found = false
+    for(let i = 0; i < ideas_wrap.childNodes.length && !found; i++){
+        const node = ideas_wrap.childNodes[i];
+        if(node.getAttribute('id') == data.idea_id){
+            found = true;
+            const points = node.childNodes[0].childNodes[0].childNodes[2].innerText
+            node.childNodes[0].childNodes[0].childNodes[2].innerText = Number(points) + 1
+        }
+    }
+}
+
+// When a user removes a point
+function remove_point_from_idea(e){
+    // const existing_points = this.parentNode.childNodes[2].innerText;
+    // this.parentNode.childNodes[2].innerText = Number(existing_points) - 1
+    const id = this.getAttribute("data-id");
+    socket.emit("remove_point", {
+        idea_id: id
+    });
+}
+
+// Callback to be called when someone else removes a point
+function pointRemovedReceived(data){
+    const ideas_wrap = document.getElementById("ideas-panel")
+    let found = false
+    for(let i = 0; i < ideas_wrap.childNodes.length && !found; i++){
+        const node = ideas_wrap.childNodes[i];
+        if(node.getAttribute('id') == data.idea_id){
+            found = true;
+            const points = node.childNodes[0].childNodes[0].childNodes[2].innerText
+            node.childNodes[0].childNodes[0].childNodes[2].innerText = Number(points) - 1
+        }
+    }
 }

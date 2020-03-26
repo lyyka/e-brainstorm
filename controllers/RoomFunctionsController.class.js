@@ -8,6 +8,8 @@ class RoomFunctionsController{
         this.decrease_users_count = this.decrease_users_count.bind(this)
         this.add_idea_to_room = this.add_idea_to_room.bind(this)
         this.fetch_all_ideas = this.fetch_all_ideas.bind(this)
+        this.add_point = this.add_point.bind(this)
+        this.remove_point = this.remove_point.bind(this)
     }
 
     // When someone connects on this IO, join him in the room
@@ -44,6 +46,7 @@ class RoomFunctionsController{
     // Adds the idea to room
     add_idea_to_room(data){
         const new_idea = {
+            id: this.room.ideas.length,
             text: data.idea,
             date: Date.now(),
             points: 0
@@ -62,12 +65,30 @@ class RoomFunctionsController{
         })
     }
 
+    // Adds a point to idea with specified ID
+    add_point(data){
+        this.room.ideas[data.idea_id].points++;
+        this.io.to(this.room.roomCode).emit("point_added", {
+            idea_id: data.idea_id
+        });
+    }
+
+    // Removes a point from an idea with specified ID
+    remove_point(data){
+        this.room.ideas[data.idea_id].points--;
+        this.io.to(this.room.roomCode).emit("point_removed", {
+            idea_id: data.idea_id
+        });
+    }
+
     listeners(socket){
         socket.on("update_room_subject", this.update_room_subject)
         socket.on("get_room_subject", this.get_room_subject)
         socket.on("decrease_users_count", this.decrease_users_count)
         socket.on("new_idea", this.add_idea_to_room)
         socket.on("get_ideas", this.fetch_all_ideas);
+        socket.on("add_point", this.add_point);
+        socket.on("remove_point", this.remove_point);
     }
 
     emitters(socket){
