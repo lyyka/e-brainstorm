@@ -24,8 +24,11 @@ class WebRouter{
         // Open the room
         this.app.get("/room/:code", this.rooms_controller.join_room)
 
-        // Join the room through form
+        // Join the room through form with code
         this.app.post("/room/join", this.rooms_controller.join_room_through_code)
+
+        // Leave the room
+        this.app.get("/leave_room", this.rooms_controller.leave_room)
 
         // AJAX routes
 
@@ -33,7 +36,7 @@ class WebRouter{
         this.app.get("/socketid", this.rooms_controller.get_socket_id);
         this.app.post("/socketid/save_to_session", this.rooms_controller.set_socket_id_to_session);
         this.app.post("/users/update_notes", this.rooms_functions_controller.save_notes);
-        this.app.get("/users/get_notes", this.rooms_functions_controller.get_notes);
+        this.app.get("/users/get_data", this.rooms_functions_controller.get_user_data);
     }
 }
 

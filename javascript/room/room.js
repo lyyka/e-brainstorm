@@ -1,4 +1,5 @@
 let user_socket_id = undefined
+let user = undefined
 
 // On document ready with vanilla js
 function docReady(fn) {
@@ -19,8 +20,6 @@ const socket = io(`/room/${roomCode}`)
 socket.on("connect", () => {
     // socket.id is current
 
-    let first_ever = true;
-
     const save_to_sess_req = $.ajax({
         url: "/socketid/save_to_session",
         data: {
@@ -32,11 +31,19 @@ socket.on("connect", () => {
         cache: false
     })
     save_to_sess_req.done(function(data){
-        first_ever = data.first_ever
-        if(first_ever){
+        // If this is first ever connection on this session
+        // No need to call server for socket id, we can use the one we have
+        if(data.first_ever){
             user_socket_id = socket.id
+            user = {
+                notes: "",
+                username: "User#" + socket.id.substring(socket.id.indexOf("#") + 1, socket.id.length - 6)
+            }
+            userDataToUI()
         }
         else{
+            // If this is not the first connection
+            // Get the old socket id
             const get_old_id_req = $.ajax({
                 url: "/socketid",
                 type: "GET",
@@ -45,8 +52,9 @@ socket.on("connect", () => {
             })
             get_old_id_req.done(function(data){
                 user_socket_id = data.socket_id
-                const get_notes_req = $.ajax({
-                    url: "/users/get_notes",
+                // Get all user data and store it in global variable 'user'
+                const get_user_data_req = $.ajax({
+                    url: "/users/get_data",
                     data: {
                         socket_id: user_socket_id
                     },
@@ -54,8 +62,9 @@ socket.on("connect", () => {
                     async: true,
                     cache: false
                 })
-                get_notes_req.done(function(data){
-                    $("#notes-paper").text(data.notes)
+                get_user_data_req.done(function(data){
+                    user = data.user
+                    userDataToUI()
                 })
             })
         }
@@ -64,6 +73,11 @@ socket.on("connect", () => {
 socket.on('disconnect', () => {
     socket.open();
 });
+
+function userDataToUI(){
+    $("#username").text(user.username)
+    $("#notes-paper").text(user.notes) // Set notes text on load
+}
 
 function onLoad(e){
     const room_code_text = document.getElementById("room-code-text")

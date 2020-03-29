@@ -26,9 +26,15 @@ class RoomsController{
     // False otherwise
     set_socket_id_to_session(req, res){
         if(req.session != null && req.session.socket_id == undefined){
+            // Update/set the session socket id to be used on each reload
             req.session.socket_id = req.body.id
+
+            const id_for_nickname = req.body.id.substring(req.body.id.indexOf('#', 0) + 1, req.body.id.length - 6)
+
+            // initialize new object that will hold all user data
             this.rooms[req.body.room].room.users[req.body.id] = {
-                notes: ""
+                notes: "",
+                username: "User#" + id_for_nickname
             }
             res.send({
                 first_ever: true
@@ -66,7 +72,7 @@ class RoomsController{
                 roomCode: room,
                 users_count: 0,
                 ideas: [],
-                users: {},
+                users: {}, // key value pairs, nested object, key - socket id, value - object with user data
                 subject: "Brainstorm!"
             }
             // pass new io namespace
@@ -94,6 +100,13 @@ class RoomsController{
     join_room(req, res){
         const code = req.params.code
         if(this.rooms[code] != null){
+            // If there is saved socket it, and that user does not exist, remove the socket id
+            if(req.session.socket_id != undefined){
+                const existing_socket_id = req.session.socket_id
+                if(this.rooms[code].room.users[existing_socket_id] == undefined){
+                    req.session.socket_id = undefined
+                }
+            }
             // Increase the number of users in the room
             this.rooms[code].room.users_count++
             // console.log(this.rooms[code].room.ideas)
@@ -121,6 +134,11 @@ class RoomsController{
             req.session.join_room_success = false;
             res.redirect("/create")
         }
+    }
+
+    leave_room(req, res){
+        req.session.socket_id = undefined
+        res.redirect("/create")
     }
 
     listeners(socket){

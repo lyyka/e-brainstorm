@@ -2,28 +2,48 @@ extends templates/template
 
 block content
     div(class = "container mt-5")
-        div(class = "row mb-5")
-            div(class = "col-lg-6")
+        div(class = 'row mb-5')
+            div(class = 'col-lg-6 mb-5')
                 h1 Create new session
-                p(class = "text-muted") You can create new session by clicking on the button on the right side. You will get your session code which other users can use to join the sessions. Once you are happy with the number of people joined, you can click to start the session.
-            div(class = "col-lg-6")
+                p(class = "text-muted") You can create new session by clicking on the button on the right side. You will get your session code which other users can use to join the session. You can join the room any time and you will still be able to share the session code.
                 button(
                     id = "create_new_session_btn"
                     class = "rounded shadow-sm border w-100 py-2 pink-bg text-white"
                 ) Click to get session code!
                 div(id="room_info_wrapper")
-        hr
-        div(class = "row mt-5 mb-5")
-            div(class = "col-lg-6")
+            div(class = 'col-lg-6 mb-4')
                 h1 Join a session
                 p(class = "text-muted") Request a session code from your group, paste it in the input field on the right, and join their brainstorming session!
-            div(class = "col-lg-6")
                 form(action="/room/join", method="post")
                     input(type="text" name="code" placeholder="Session code" class = "w-100 rounded shadow-sm border mb-2 py-2 px-3")
                     label(class='text-danger d-none' id = "join-error-lb")
                     button(
                         type="submit" id="join-existing-session" class = "text-white pink-bg rounded shadow-sm border mb-4 py-2 px-3"
-                    ) Join
+                    )
+                        i(class="fas fa-users mr-2")
+                        span Join
+        //- div(class = "row mb-5")
+        //-     div(class = "col-lg-6")
+        //-         h1 Create new session
+        //-         p(class = "text-muted") You can create new session by clicking on the button on the right side. You will get your session code which other users can use to join the session. You can join the room any time and you will still be able to share the session code.
+        //-     div(class = "col-lg-6")
+        //-         button(
+        //-             id = "create_new_session_btn"
+        //-             class = "rounded shadow-sm border w-100 py-2 pink-bg text-white"
+        //-         ) Click to get session code!
+        //-         div(id="room_info_wrapper")
+        //- hr
+        //- div(class = "row mt-5 mb-5")
+        //-     div(class = "col-lg-6")
+        //-         h1 Join a session
+        //-         p(class = "text-muted") Request a session code from your group, paste it in the input field on the right, and join their brainstorming session!
+        //-     div(class = "col-lg-6")
+        //-         form(action="/room/join", method="post")
+        //-             input(type="text" name="code" placeholder="Session code" class = "w-100 rounded shadow-sm border mb-2 py-2 px-3")
+        //-             label(class='text-danger d-none' id = "join-error-lb")
+        //-             button(
+        //-                 type="submit" id="join-existing-session" class = "text-white pink-bg rounded shadow-sm border mb-4 py-2 px-3"
+        //-             ) Join
 
 block scripts
     //- Fontawesome kit
@@ -34,8 +54,8 @@ block scripts
 
     //- Load variables
     script.
-        join_success="#{join_success}"
-        if(join_success == 'false'){
+        join_success=#{join_success}
+        if(!join_success){
             const lb = document.getElementById("join-error-lb");
             lb.classList.remove("d-none")
             lb.classList.add("d-block")

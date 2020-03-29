@@ -13,7 +13,7 @@ class RoomFunctionsController{
         this.allow_point = this.allow_point.bind(this)
         this.update_objects_and_points = this.update_objects_and_points.bind(this)
         this.save_notes = this.save_notes.bind(this);
-        this.get_notes = this.get_notes.bind(this);
+        this.get_user_data = this.get_user_data.bind(this);
     }
 
     // When someone connects on this IO, join him in the room
@@ -25,18 +25,15 @@ class RoomFunctionsController{
 
     // Saves users notes (POST)
     save_notes(req, res){
-        const user = req.body.socket_id;
-        const notes = req.body.notes;
-        this.room.users[user].notes = notes;
+        this.room.users[req.body.socket_id].notes = req.body.notes;
         res.send({
             success: true
         })
     }
     // Gets users notes (GET)
-    get_notes(req, res){
-        const user = req.query.socket_id;
+    get_user_data(req, res){
         res.send({
-            notes: this.room.users[user].notes
+            user: this.room.users[req.query.socket_id]
         })
     }
 
@@ -66,13 +63,14 @@ class RoomFunctionsController{
 
     // Adds the idea to room
     add_idea_to_room(data){
+        // Initial idea settings
         const new_idea = {
             user_socket_id: data.user_socket_id,
             id: this.room.ideas.length,
             text: data.idea,
             date: Date.now(),
             points: 0,
-            socket_ids_who_gave_point: [] // {socket_id: ... , positive_point: true/false}
+            socket_ids_who_gave_point: [] // array of objects like {socket_id: ... , positive_point: true/false}
         };
         this.room.ideas.push(new_idea)
         this.io.to(this.room.roomCode).emit("new_idea_uploaded", {
