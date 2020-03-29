@@ -2,6 +2,7 @@
 require('dotenv').config()
 
 // Server set up requirements
+const cookieSession = require('cookie-session')
 const http = require('http')
 const express = require("express")
 const app = express()
@@ -18,12 +19,17 @@ const path = require('path')
 app.use(express.static(__dirname));
 app.set("view engine", 'pug')
 app.set('views', path.join(__dirname, '/views'))
+app.set("trust_proxy", 1)
 
 // Requests parser
 const body_parser = require('body-parser')
 app.use(body_parser.json())
 app.use(body_parser.urlencoded({
     extended: false
+}))
+app.use(cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2']
 }))
 
 // CSRF protection

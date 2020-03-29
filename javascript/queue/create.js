@@ -91,19 +91,20 @@ function update_room_info_wrapper(room_code){
     // Create heading element to store room code in
     const room_code_heading = document.createElement("h2")
     room_code_heading.classList.add("font-weight-bold")
-    room_code_heading.classList.add("text-center")
+    room_code_heading.classList.add("text-center", "cursor-pointer")
+    room_code_heading.addEventListener("click", copyRoomCode);
     // Add text to heading
     const text = document.createTextNode(separated_room_code)
     room_code_heading.appendChild(text)
     // Add copy button to heading
-    const copy_icon = document.createElement("i")
-    copy_icon.classList.add('ml-3')
-    copy_icon.classList.add('pink-text')
-    copy_icon.classList.add('cursor-pointer')
-    copy_icon.classList.add('far')
-    copy_icon.classList.add('fa-copy')
-    copy_icon.addEventListener("click", copyCode)
-    room_code_heading.appendChild(copy_icon)
+    // const copy_icon = document.createElement("i")
+    // copy_icon.classList.add('ml-3')
+    // copy_icon.classList.add('pink-text')
+    // copy_icon.classList.add('cursor-pointer')
+    // copy_icon.classList.add('far')
+    // copy_icon.classList.add('fa-copy')
+    // copy_icon.addEventListener("click", copyCode)
+    // room_code_heading.appendChild(copy_icon)
 
     // Create join button
     const join_room_btn = document.createElement("a")
@@ -118,6 +119,19 @@ function update_room_info_wrapper(room_code){
     // Add heading to now empty wrapper
     wrapper.appendChild(room_code_heading)
     wrapper.appendChild(join_room_btn)
+}
+
+// Copies the room code
+function copyRoomCode(e){
+    const heading = this;
+    const code = heading.innerText
+    if(code != "Code copied!"){
+        copyCode();
+        heading.innerText = "Code copied!"
+        window.setTimeout(function(){
+            heading.innerText = code
+        }, 1500);
+    }
 }
 
 // Copy the code to memory

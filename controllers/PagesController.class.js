@@ -4,7 +4,18 @@ class PagesController{
     }
 
     createSession(req, res){
-        res.render("queue")
+        let join_success = false;
+        if(req.session == null || req.session.join_room_success == undefined){
+            join_success = true;
+        }
+        else{
+            join_success = req.session.join_room_success
+        }
+        
+        req.session.join_room_success = undefined;
+        res.render("queue", {
+            join_success: join_success
+        })
     }
 }
 

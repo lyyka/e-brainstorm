@@ -42,7 +42,9 @@ block content
         include room_components/ideas_panel
 
         //- Credits note
-        p(class='h6 text-center mb-5') Made by Luka Robajac
+        p(class='h6 text-center mb-5')
+            i(class="fas fa-copyright mr-2")
+            span Made by Luka Robajac 
 
 block scripts
     //- Fontawesome kit
@@ -51,8 +53,12 @@ block scripts
     //- Socket.io 
     script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js")
 
+    //- jQuery
+    script(src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous")
+
     //- Bootstrap additional JS for modals to function properly
-    script(src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous")
     script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous")
     
@@ -69,3 +75,5 @@ block scripts
     script(src="/javascript/room/update_subject.js")
     //- Ideas handler
     script(src="/javascript/room/ideas.js")
+    //- Notes handler
+    script(src="/javascript/room/notes.js")

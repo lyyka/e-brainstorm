@@ -11,18 +11,28 @@ function docReady(fn) {
 docReady(onLoad)
 
 function onLoad(e) {
+    document.getElementById("idea-input").addEventListener("keydown", sendIdeaOnEnter)
     document.getElementById("send-idea").addEventListener("click", sendIdea)
     socket.on('new_idea_uploaded', newIdeaReceived);
-    socket.on('point_added', pointAddedReceived);
-    socket.on('point_removed', pointRemovedReceived);
+    socket.on('update_points', updatePoints);
+    // socket.on('point_removed', pointRemovedReceived);
     socket.emit('get_ideas', loadExistingIdeas)
 }
 
+function sendIdeaOnEnter(e){
+    if(e.keyCode == 13){
+        sendIdea(e);
+    }
+}
+
 function sendIdea(e){
+    console.log(`Using ${user_socket_id}`);
+    
     const idea_input = document.getElementById("idea-input")
     const idea = idea_input.value
     idea_input.value = ""
     socket.emit("new_idea", {
+        user_socket_id: user_socket_id,
         idea: idea
     })
 }
@@ -47,7 +57,7 @@ function setStatusTextAndImage(ideas_list_len){
         img_wrap.classList.add('text-center')
         const no_ideas_img = document.createElement("img")
         no_ideas_img.src = "/images/space.png"
-        no_ideas_img.classList.add("img-fluid")
+        no_ideas_img.classList.add("img-fluid", "space-guy-img")
         img_wrap.appendChild(no_ideas_img)
         const ideas_panel = document.getElementById("ideas-panel")
         ideas_panel.appendChild(img_wrap)
@@ -83,20 +93,22 @@ function addIdeaToList(idea){
 
     const arrows_p = document.createElement("p");
     arrows_p.classList.add("text-right");
-    const arrow_up = document.createElement("i");
-    arrow_up.classList.add("fas", "fa-arrow-up", "mr-2", "text-muted", "cursor-pointer");
-    arrow_up.setAttribute("data-id", idea.id);
-    arrow_up.addEventListener("click", add_point_to_idea);
-    const arrow_down = document.createElement("i");
-    arrow_down.classList.add("fas", "fa-arrow-down", "mr-2", "text-muted", "cursor-pointer");
-    arrow_down.setAttribute("data-id", idea.id);
-    arrow_down.addEventListener("click", remove_point_from_idea);
+    if(idea.user_socket_id != user_socket_id){
+        const arrow_up = document.createElement("i");
+        arrow_up.classList.add("fas", "fa-arrow-up", "mr-2", "text-muted", "cursor-pointer");
+        arrow_up.setAttribute("data-id", idea.id);
+        arrow_up.addEventListener("click", add_point_to_idea);
+        const arrow_down = document.createElement("i");
+        arrow_down.classList.add("fas", "fa-arrow-down", "mr-2", "text-muted", "cursor-pointer");
+        arrow_down.setAttribute("data-id", idea.id);
+        arrow_down.addEventListener("click", remove_point_from_idea);
+        arrows_p.appendChild(arrow_up);
+        arrows_p.appendChild(arrow_down);
+    }
     const points_span = document.createElement("span");
     points_span.classList.add("idea-points");
     points_span.innerText = idea.points
 
-    arrows_p.appendChild(arrow_up);
-    arrows_p.appendChild(arrow_down);
     arrows_p.appendChild(points_span);
     idea_block_header.appendChild(arrows_p);
 
@@ -143,20 +155,28 @@ function add_point_to_idea(e){
     // this.parentNode.childNodes[2].innerText = Number(existing_points) + 1
     const id = this.getAttribute("data-id");
     socket.emit("add_point", {
+        user_socket_id: user_socket_id,
         idea_id: id
     });
 }
 
 // Callback to be called when someone else adds a point
-function pointAddedReceived(data){
+function updatePoints(data){
     const ideas_wrap = document.getElementById("ideas-panel")
     let found = false
     for(let i = 0; i < ideas_wrap.childNodes.length && !found; i++){
         const node = ideas_wrap.childNodes[i];
         if(node.getAttribute('id') == data.idea_id){
             found = true;
-            const points = node.childNodes[0].childNodes[0].childNodes[2].innerText
-            node.childNodes[0].childNodes[0].childNodes[2].innerText = Number(points) + 1
+            const header_nodes = node.childNodes[0].childNodes[0].childNodes;
+            // If the card to be updated is from some user, so it has 3 elements in header (arrows + points text)
+            if(header_nodes.length == 3){
+                node.childNodes[0].childNodes[0].childNodes[2].innerText = data.points
+            }
+            else if(header_nodes.length == 1){
+                // If the card to be updated is from current user, so it has 1 element in header (points, NO ARROWS)
+                node.childNodes[0].childNodes[0].childNodes[0].innerText = data.points
+            }
         }
     }
 }
@@ -167,20 +187,7 @@ function remove_point_from_idea(e){
     // this.parentNode.childNodes[2].innerText = Number(existing_points) - 1
     const id = this.getAttribute("data-id");
     socket.emit("remove_point", {
+        user_socket_id: user_socket_id,
         idea_id: id
     });
-}
-
-// Callback to be called when someone else removes a point
-function pointRemovedReceived(data){
-    const ideas_wrap = document.getElementById("ideas-panel")
-    let found = false
-    for(let i = 0; i < ideas_wrap.childNodes.length && !found; i++){
-        const node = ideas_wrap.childNodes[i];
-        if(node.getAttribute('id') == data.idea_id){
-            found = true;
-            const points = node.childNodes[0].childNodes[0].childNodes[2].innerText
-            node.childNodes[0].childNodes[0].childNodes[2].innerText = Number(points) - 1
-        }
-    }
 }

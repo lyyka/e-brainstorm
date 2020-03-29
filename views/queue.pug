@@ -20,6 +20,7 @@ block content
             div(class = "col-lg-6")
                 form(action="/room/join", method="post")
                     input(type="text" name="code" placeholder="Session code" class = "w-100 rounded shadow-sm border mb-2 py-2 px-3")
+                    label(class='text-danger d-none' id = "join-error-lb")
                     button(
                         type="submit" id="join-existing-session" class = "text-white pink-bg rounded shadow-sm border mb-4 py-2 px-3"
                     ) Join
@@ -30,6 +31,21 @@ block scripts
     
     //- Socket.io
     script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js")
+
+    //- Load variables
+    script.
+        join_success="#{join_success}"
+        if(join_success == 'false'){
+            const lb = document.getElementById("join-error-lb");
+            lb.classList.remove("d-none")
+            lb.classList.add("d-block")
+            lb.innerText = "That room does not exist"
+            window.setTimeout(function(){
+                lb.classList.remove("d-block")
+                lb.classList.add("d-none")
+                lb.innerText = ""
+            }, 2500);
+        }
 
     //- My scripts
     script(src="/javascript/separate_room_code.js")
