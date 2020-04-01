@@ -4,6 +4,7 @@ class PagesController{
     }
 
     createSession(req, res){
+        // if join try was successful
         let join_success = false;
         
         if(req.session == null || req.session.join_room_success == undefined){

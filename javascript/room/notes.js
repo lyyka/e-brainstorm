@@ -8,7 +8,6 @@ function updateNotes(e){
         safe_to_save = false;
         
         const notes = $(this).val();
-        console.log(notes);
         const req = $.ajax({
             url: '/users/update_notes',
             type: "POST",
@@ -28,10 +27,8 @@ function updateNotes(e){
                 }, 2500);
             }
         });
-        req.fail(function(data){
+        req.fail(function(){
             safe_to_save = true;
-            console.log(data);
-            
         })
     }
 }

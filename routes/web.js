@@ -28,7 +28,7 @@ class WebRouter{
         this.app.post("/room/join", this.rooms_controller.join_room_through_code)
 
         // Leave the room
-        this.app.get("/leave_room", this.rooms_controller.leave_room)
+        // this.app.get("/leave_room", this.rooms_controller.leave_room)
 
         // AJAX routes
 

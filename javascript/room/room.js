@@ -40,7 +40,7 @@ socket.on("connect", () => {
                 username: "User#" + socket.id.substring(socket.id.indexOf("#") + 1, socket.id.length - 6)
             }
             userDataToUI()
-            updateUsersList(data.users)
+            // updateUsersList(data.users)
         }
         else{
             // console.log("Not first ever");
@@ -75,9 +75,6 @@ socket.on("connect", () => {
         }
     })    
 })
-socket.on('disconnect', () => {
-    socket.open();
-});
 
 function userDataToUI(){
     $("#username").text(user.username)
@@ -88,6 +85,16 @@ function onLoad(e){
     const room_code_text = document.getElementById("room-code-text")
     room_code_text.innerText = separateRoomCode(roomCode)
     room_code_text.addEventListener("click", copyRoomCode);
+
+    // When users leave the page
+    // window.addEventListener("beforeunload", function (e) {
+    //     socket.emit("page_refresh_leave", {
+    //         code: roomCode
+    //     });
+
+    //     (e || window.event).returnValue = null;
+    //     return null;
+    // });
 }
 
 // Copy room code when user clicks on it
@@ -101,11 +108,6 @@ function copyRoomCode(e){
             heading.innerText = code
         }, 1500);
     }
-}
-
-// When users leave the page
-window.onbeforeunload = function(){
-    // socket.emit("decrease_users_count");
 }
 
 // Users count

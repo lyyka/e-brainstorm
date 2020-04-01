@@ -7,21 +7,16 @@ class RoomsController{
         this.create_new_room = this.create_new_room.bind(this)
         this.join_room = this.join_room.bind(this)
         this.join_room_through_code = this.join_room_through_code.bind(this)
-        // this.get_socket_id = this.get_socket_id.bind(this)
         this.set_socket_id_to_session = this.set_socket_id_to_session.bind(this)
-        this.leave_room = this.leave_room.bind(this)
+        // this.leave_room = this.leave_room.bind(this)
+        // this.page_refresh_leave = this.page_refresh_leave.bind(this);
+        // this.leave = this.leave.bind(this);
     }
 
     onConnection(socket){
         this.socket = socket
         this.listeners(socket)
     }
-
-    // get_socket_id(req, res){
-    //     res.send({
-    //         socket_id: req.session.socket_id
-    //     })
-    // }
 
     // Returns true if this is the first ever connection in this session
     // False otherwise
@@ -38,17 +33,30 @@ class RoomsController{
                 username: "User#" + id_for_nickname
             }
 
+            this.rooms[req.body.room].io.to(req.body.room).emit("update_users_list", {
+                users: this.rooms[req.body.room].room.users
+            })
+
             this.rooms[req.body.room].io.to(req.body.room).emit("update_users_count", {
                 // users_count: this.rooms[code].room.users_count
                 users_count: Object.keys(this.rooms[req.body.room].room.users).length
             })
 
+            this.rooms[req.body.room].room.modified_user_socket_id = req.session.socket_id;
             res.send({
-                first_ever: true,
-                users: this.rooms[req.body.room].room.users // Send users list to show in frontend when someone connected for first time, if it was not the first time, get_socket_id() from RoomFunctionsController will send users list when sending the existing socket itd
+                first_ever: true
             })
         }
         else{
+            // old_user is set in socketDisconnected() in other controller
+            // It saves current users data in case he refreshed the page
+            // and will come back immediately, so if there is old_user
+            // set the current users data to it
+            if(this.rooms[req.body.room].room.old_user != undefined){
+                this.rooms[req.body.room].room.users[req.session.socket_id] = this.rooms[req.body.room].room.old_user;
+                this.rooms[req.body.room].room.old_user = undefined;
+            }
+            this.rooms[req.body.room].room.modified_user_socket_id = req.session.socket_id;
             res.send({
                 first_ever: false
             })
@@ -78,7 +86,7 @@ class RoomsController{
             // Empty room data
             room_functions.room = {
                 roomCode: room,
-                users_count: 0,
+                // users_count: 0,
                 ideas: [],
                 users: {}, // key value pairs, nested object, key - socket id, value - object with user data
                 subject: "Brainstorm!"
@@ -142,17 +150,40 @@ class RoomsController{
         }
     }
 
-    leave_room(req, res){
-        // console.log("Leaving " + req.query.code);
-        // console.log(this.rooms)
+    // when the leave button is clicked (this is accessible through link /leave_room?code=xxxxxx)
+    // leave_room(req, res){
+    //     // this.leave(req.query.code)
+        
+    //     // req.session.socket_id = undefined
+    //     res.redirect("/create")
+    // }
 
-        delete this.rooms[req.query.code].room.users[req.session.socket_id]
-        req.session.socket_id = undefined
-        res.redirect("/create")
-    }
+    // on unload
+    // page_refresh_leave(data){
+    //     console.log("Page refresh leave");
+        
+    //     this.leave(data.code)
+    // }
+
+    // Deletes user from the list
+    // Updates users list 
+    // Updates users count
+    // leave(room_code){
+    //     delete this.rooms[room_code].room.users[req.session.socket_id]
+        
+    //     this.rooms[room_code].io.to(room_code).emit("update_users_list", {
+    //         users: this.rooms[room_code].room.users
+    //     })
+
+    //     this.rooms[room_code].io.to(room_code).emit("update_users_count", {
+    //         // users_count: this.rooms[code].room.users_count
+    //         users_count: Object.keys(this.rooms[room_code].room.users).length
+    //     })
+    // }
 
     listeners(socket){
         socket.on("create_new_session", this.create_new_room)
+        // socket.on("page_refresh_leave", this.page_refresh_leave)
     }
 }
 

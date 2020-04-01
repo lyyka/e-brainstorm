@@ -42,7 +42,7 @@ block content
             //-     i(class = 'fas fa-users mr-2')
             //-     span Users
 
-            a(href="/leave_room?code=" id = "leave-btn" class="d-inline-block px-3 text-center remove-underline rounded shadow-sm border py-2 pink-bg text-white")
+            a(href="/create" id = "leave-btn" class="d-inline-block px-3 text-center remove-underline rounded shadow-sm border py-2 pink-bg text-white")
                 i(class = 'fas fa-door-open mr-2')
                 span Leave Room
             
@@ -85,7 +85,7 @@ block scripts
     script.
         roomCode="#{room_code}"
         users_count="#{users_count}"
-        document.getElementById("leave-btn").href = "/leave_room?code=" + roomCode
+        //- document.getElementById("leave-btn").href = "/leave_room?code=" + roomCode
         document.getElementById('users_count').innerText = `${users_count} people brainstorming`
     
     script(src="/javascript/separate_room_code.js")

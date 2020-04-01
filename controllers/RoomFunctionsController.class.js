@@ -80,16 +80,22 @@ class RoomFunctionsController{
 
     // Decreases the number of users in a room
     socketDisconnected(){
+        this.socket.leave(this.room.roomCode)
+
+        // save old user so if current one just refreshed the page, data can be
+        // generated
+        this.room.old_user = this.room.users[this.room.modified_user_socket_id];
+        delete this.room.users[this.room.modified_user_socket_id] // modified_user_socket_id is set on set_socket_id_to_session in other controller
         
+        this.io.to(this.room.roomCode).emit("update_users_list", {
+            users: this.room.users
+        })
+
+        this.io.to(this.room.roomCode).emit("update_users_count", {
+            // users_count: this.rooms[code].room.users_count
+            users_count: Object.keys(this.room.users).length
+        })
     }
-    // decrease_users_count(){
-    //     // this.room.users_count--;
-    //     // Emit the new users count to all
-    //     this.io.to(this.room.roomCode).emit("update_users_count", {
-    //         // users_count: this.room.users_count
-    //         users_count: Object.keys(this.room.users).length - 1
-    //     })
-    // }
 
     // Adds the idea to room
     add_idea_to_room(data){
@@ -187,7 +193,6 @@ class RoomFunctionsController{
     listeners(socket){
         socket.on("update_room_subject", this.update_room_subject)
         socket.on("get_room_subject", this.get_room_subject)
-        // socket.on("decrease_users_count", this.decrease_users_count)
         socket.on("new_idea", this.add_idea_to_room)
         socket.on("get_ideas", this.fetch_all_ideas);
         socket.on("add_point", this.add_point);
