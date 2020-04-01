@@ -7,7 +7,7 @@ class RoomsController{
         this.create_new_room = this.create_new_room.bind(this)
         this.join_room = this.join_room.bind(this)
         this.join_room_through_code = this.join_room_through_code.bind(this)
-        this.get_socket_id = this.get_socket_id.bind(this)
+        // this.get_socket_id = this.get_socket_id.bind(this)
         this.set_socket_id_to_session = this.set_socket_id_to_session.bind(this)
         this.leave_room = this.leave_room.bind(this)
     }
@@ -17,11 +17,11 @@ class RoomsController{
         this.listeners(socket)
     }
 
-    get_socket_id(req, res){
-        res.send({
-            socket_id: req.session.socket_id
-        })
-    }
+    // get_socket_id(req, res){
+    //     res.send({
+    //         socket_id: req.session.socket_id
+    //     })
+    // }
 
     // Returns true if this is the first ever connection in this session
     // False otherwise
@@ -44,7 +44,8 @@ class RoomsController{
             })
 
             res.send({
-                first_ever: true
+                first_ever: true,
+                users: this.rooms[req.body.room].room.users // Send users list to show in frontend when someone connected for first time, if it was not the first time, get_socket_id() from RoomFunctionsController will send users list when sending the existing socket itd
             })
         }
         else{
@@ -142,6 +143,9 @@ class RoomsController{
     }
 
     leave_room(req, res){
+        // console.log("Leaving " + req.query.code);
+        // console.log(this.rooms)
+
         delete this.rooms[req.query.code].room.users[req.session.socket_id]
         req.session.socket_id = undefined
         res.redirect("/create")

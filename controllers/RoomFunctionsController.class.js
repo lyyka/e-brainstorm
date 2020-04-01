@@ -14,6 +14,7 @@ class RoomFunctionsController{
         this.update_objects_and_points = this.update_objects_and_points.bind(this)
         this.save_notes = this.save_notes.bind(this);
         this.update_username = this.update_username.bind(this);
+        this.get_socket_id = this.get_socket_id.bind(this)
         this.get_user_data = this.get_user_data.bind(this);
         this.socketDisconnected = this.socketDisconnected.bind(this);
     }
@@ -36,6 +37,7 @@ class RoomFunctionsController{
     update_username(req, res){
         if(req.body.username.length > 2){
             this.room.users[req.body.socket_id].username = req.body.username;
+            // Update users list for everyone
             this.io.to(this.room.roomCode).emit("update_users_list", {
                 users: this.room.users
             })
@@ -44,6 +46,16 @@ class RoomFunctionsController{
             })
         }
     }
+
+    get_socket_id(req, res){
+        // WHen getting socket id on socket connection from front end
+        // Send the existing socket id AND users list to update
+        res.send({
+            socket_id: req.session.socket_id,
+            users: this.room.users
+        })
+    }
+
     // Gets users notes (GET)
     get_user_data(req, res){
         res.send({
@@ -63,9 +75,6 @@ class RoomFunctionsController{
     // Just returns the room subject to the frontend
     // Used when connecting to the room to download the actual room subject
     get_room_subject(callback){
-        this.io.to(this.room.roomCode).emit("update_users_list", {
-            users: this.room.users
-        })
         callback(this.room.subject)
     }
 

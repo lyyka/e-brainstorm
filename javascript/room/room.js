@@ -40,6 +40,7 @@ socket.on("connect", () => {
                 username: "User#" + socket.id.substring(socket.id.indexOf("#") + 1, socket.id.length - 6)
             }
             userDataToUI()
+            updateUsersList(data.users)
         }
         else{
             // console.log("Not first ever");
@@ -55,6 +56,7 @@ socket.on("connect", () => {
             get_old_id_req.done(function(data){
                 // console.log(data.socket_id);
                 user_socket_id = data.socket_id
+                updateUsersList(data.users)
                 // Get all user data and store it in global variable 'user'
                 const get_user_data_req = $.ajax({
                     url: "/users/get_data",
