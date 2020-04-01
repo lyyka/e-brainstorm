@@ -1,0 +1,35 @@
+div(id = 'main-chat-wrap' class = 'shadow-sm bg-white border-left')
+    //- Header with X button and Chat header
+    div(id = 'chat-header' class = 'border-bottom px-2 py-3')
+        i(id = 'close-chat' class = 'fas fa-times ml-2 cursor-pointer h5 float-right')
+        h4(class = 'font-weight-bold mb-0 text-center ml-n2')
+            span Chat
+            //- i(class="ml-2 far fa-comment-alt")
+    //- Contains messages + absolutly positioned controls
+    div(id = 'messages-main-wrap' class = 'px-3 pt-2')
+        //- All message bubbles will go in this container
+        div(id = 'msgs-list')
+            //- My message
+            div(
+            class = 'message text-right')
+                p(class = 'text-muted mb-0') 12:59
+                div(class = 'msg-cont')
+                    div(class='d-inline-block pink-bg text-white py-1 px-2 rounded shadow-sm border') Message!
+            
+            //- Received message
+            div(
+            class = 'message text-left')
+                p(class = 'text-muted mb-0') 00:00
+                div(class = 'msg-cont')
+                    div(class='d-inline-block received-msg text-dark py-1 px-2 rounded shadow-sm border') Response!
+        //- Send messages, etc.
+        div(id = 'msg-controls' class = 'border-top py-3 px-2 bg-white')
+            form.mb-0
+                .form-row
+                    .col-10
+                        input(type='text' class = 'w-100 px-2 py-2 rounded shadow-sm border'
+                        placeholder = 'Type message...')
+                    .col-2
+                        button(type = 'button' id = 'send-msg' class = 'w-100 h-100 rounded shadow-sm border py-2 px-3 text-white pink-bg d-inline-block') 
+                            i(class = 'fas fa-paper-plane')
+                            //- span Send

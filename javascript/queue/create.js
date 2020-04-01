@@ -22,21 +22,21 @@ function onLoad(e){
     }
 
     // Check if the room is already generated through cookies
-    cookie_handler = new CookieHandler()
-    generated_room = cookie_handler.get_cookie("generated_room", document)
+    // cookie_handler = new CookieHandler()
+    // generated_room = cookie_handler.get_cookie("generated_room", document)
 
     // If room is already generated
-    if(generated_room != undefined){
+    // if(generated_room != undefined){
         // Remove the button
-        removeCreateRoomButton()
+        // removeCreateRoomButton()
 
         // Update with existing info
-        update_room_info_wrapper(generated_room)
-    }
-    else{
+        // update_room_info_wrapper(generated_room)
+    // }
+    // else{
         // Bind click listener on the button
         bind_listener()
-    }
+    // }
 }
 
 // Removes the button from the DOM along with its event listener
@@ -51,30 +51,20 @@ function removeCreateRoomButton(){
 
 // On button click, create new room if one not already created
 function create_new_room(e){
-    // cookie_handler = new CookieHandler()
-    // room_generated = cookie_handler.get_cookie("generated_room", document)
-    // if(room_generated != undefined){
-        // alert(`You have already generated a room with code ${room_generated}`)
-    // }
-    // else{
-        const socket = io()
-        socket.emit("create_new_session", function(feedback){
-            if(feedback.success){
-                // Delete the create button so no new rooms can be created
-                removeCreateRoomButton()
+    const socket = io()
+    socket.emit("create_new_session", function(feedback){
+        if(feedback.success){
+            // Delete the create button so no new rooms can be created
+            removeCreateRoomButton()
 
-                // Create a cookie saying that the room is already generated
-                // cookie_handler.add_cookie("generated_room", feedback.room_code, document)
-
-                // Update the room info wrapper
-                created_room_code = feedback.room_code
-                update_room_info_wrapper(feedback.room_code)
-            }
-            else{
-                alert("Error while generating your room! Please try again later, thanks.")
-            }
-        })
-    // }
+            // Update the room info wrapper
+            created_room_code = feedback.room_code
+            update_room_info_wrapper(feedback.room_code)
+        }
+        else{
+            alert("Error while generating your room! Please try again later, thanks.")
+        }
+    })
 }
 
 // Updates the room info wrapper with room code
@@ -96,15 +86,6 @@ function update_room_info_wrapper(room_code){
     // Add text to heading
     const text = document.createTextNode(separated_room_code)
     room_code_heading.appendChild(text)
-    // Add copy button to heading
-    // const copy_icon = document.createElement("i")
-    // copy_icon.classList.add('ml-3')
-    // copy_icon.classList.add('pink-text')
-    // copy_icon.classList.add('cursor-pointer')
-    // copy_icon.classList.add('far')
-    // copy_icon.classList.add('fa-copy')
-    // copy_icon.addEventListener("click", copyCode)
-    // room_code_heading.appendChild(copy_icon)
 
     // Create join button
     const join_room_btn = document.createElement("a")
@@ -126,7 +107,8 @@ function copyRoomCode(e){
     const heading = this;
     const code = heading.innerText
     if(code != "Code copied!"){
-        copyCode();
+        // copyCode();
+        copyToClipboard(created_room_code)
         heading.innerText = "Code copied!"
         window.setTimeout(function(){
             heading.innerText = code
@@ -134,36 +116,14 @@ function copyRoomCode(e){
     }
 }
 
-// Copy the code to memory
-function copyCode(e){
-    const el = document.createElement('textarea');  // Create a <textarea> element
-    el.value = created_room_code;                   // Set its value to the string that you want copied
-    el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
-    el.style.position = 'absolute';                 
-    el.style.left = '-9999px';                      // Move outside the screen to make it invisible
-    document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
-    const selected =            
-        document.getSelection().rangeCount > 0        // Check if there is any content selected previously
-        ? document.getSelection().getRangeAt(0)     // Store selection if found
-        : false;                                    // Mark as false to know no selection existed before
-    el.select();                                    // Select the <textarea> content
-    document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
-    document.body.removeChild(el);                  // Remove the <textarea> element
-    if (selected) {                                 // If a selection existed before copying
-        document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
-        document.getSelection().addRange(selected);   // Restore the original selection
-    }
-}
-
-
 // JUST FOR TESTING
-function deleteAllCookies() {
-    var cookies = document.cookie.split(";");
+// function deleteAllCookies() {
+//     var cookies = document.cookie.split(";");
 
-    for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i];
-        var eqPos = cookie.indexOf("=");
-        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    }
-}
+//     for (var i = 0; i < cookies.length; i++) {
+//         var cookie = cookies[i];
+//         var eqPos = cookie.indexOf("=");
+//         var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+//         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+//     }
+// }

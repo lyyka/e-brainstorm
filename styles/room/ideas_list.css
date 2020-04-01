@@ -11,7 +11,9 @@
     word-wrap: normal;
 }
 .idea-block-footer{
-    height: 30px;
-    overflow-y: auto;
-    word-wrap: normal;
+    /* height: 30px; */
+    /* overflow-y: auto; */
+    border-top: 1px solid grey;
+    padding-top: 5px;
+    /* word-wrap: normal; */
 }

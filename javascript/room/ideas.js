@@ -26,15 +26,15 @@ function sendIdeaOnEnter(e){
 }
 
 function sendIdea(e){
-    console.log(`Using ${user_socket_id}`);
-    
     const idea_input = document.getElementById("idea-input")
     const idea = idea_input.value
-    idea_input.value = ""
-    socket.emit("new_idea", {
-        user_socket_id: user_socket_id,
-        idea: idea
-    })
+    if(idea.length > 0){
+        idea_input.value = ""
+        socket.emit("new_idea", {
+            user_socket_id: user_socket_id,
+            idea: idea
+        })
+    }
 }
 
 function newIdeaReceived(data) {
@@ -68,6 +68,13 @@ function setStatusTextAndImage(ideas_list_len){
             element.parentNode.removeChild(element)
         }
     }
+}
+
+function parse_link_in_idea_text(text){
+    var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlRegex, function(url) {
+        return '<a target = "_blank" href="' + url + '">' + url + '</a>';
+    });
 }
 
 // add points to each note
@@ -117,13 +124,14 @@ function addIdeaToList(idea){
     idea_block_body.classList.add("idea-block-body");
 
     // New idea text
-    const idea_par = document.createElement("p")
-    idea_par.classList.add("mb-0")
-    const idea_text = document.createTextNode(idea.text)
-    idea_par.appendChild(idea_text)
+    // const idea_text_div = document.createElement("div")
+    // idea_text_div.classList.add("mb-0", "idea-text-div")
+    idea_block_body.innerHTML = parse_link_in_idea_text(idea.text)
+    // const idea_text = document.createTextNode(parse_link_in_idea_text(idea.text))
+    // idea_text_div.appendChild(idea_text)
 
     // Add text to idea body block
-    idea_block_body.appendChild(idea_par)
+    // idea_block_body.appendChild(idea_text_div)
 
     // Idea block footer (for date)
     const idea_block_footer = document.createElement("div");
@@ -131,14 +139,17 @@ function addIdeaToList(idea){
 
     // Idea date text
     const date = new Date(idea.date);
-    const date_par = document.createElement("p")
-    date_par.classList.add("text-muted");
-    date_par.classList.add("mb-0")
-    const date_text = document.createTextNode(days[date.getDay()] + " " + date.getDay() + "/" + date.getMonth() + ", " + date.getHours() + ":" + date.getMinutes())
-    date_par.appendChild(date_text)
+    const idea_data_par = document.createElement("p")
+    idea_data_par.classList.add("text-muted");
+    idea_data_par.classList.add("mb-0")
+    const idea_author_text = document.createTextNode(idea.user_socket_id == user_socket_id ? "You" : idea.author_username)
+    const idea_date_text = document.createTextNode(date.getHours() + ":" + date.getMinutes());
+    idea_data_par.appendChild(idea_author_text)
+    idea_data_par.appendChild(document.createElement("br"))
+    idea_data_par.appendChild(idea_date_text)
 
     // Add date text to footer
-    idea_block_footer.appendChild(date_par);
+    idea_block_footer.appendChild(idea_data_par);
 
     // Construct the whole block
     new_idea_block.appendChild(idea_block_header);

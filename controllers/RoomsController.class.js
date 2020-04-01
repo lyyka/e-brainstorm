@@ -9,6 +9,7 @@ class RoomsController{
         this.join_room_through_code = this.join_room_through_code.bind(this)
         this.get_socket_id = this.get_socket_id.bind(this)
         this.set_socket_id_to_session = this.set_socket_id_to_session.bind(this)
+        this.leave_room = this.leave_room.bind(this)
     }
 
     onConnection(socket){
@@ -36,6 +37,12 @@ class RoomsController{
                 notes: "",
                 username: "User#" + id_for_nickname
             }
+
+            this.rooms[req.body.room].io.to(req.body.room).emit("update_users_count", {
+                // users_count: this.rooms[code].room.users_count
+                users_count: Object.keys(this.rooms[req.body.room].room.users).length
+            })
+
             res.send({
                 first_ever: true
             })
@@ -100,7 +107,7 @@ class RoomsController{
     join_room(req, res){
         const code = req.params.code
         if(this.rooms[code] != null){
-            // If there is saved socket it, and that user does not exist, remove the socket id
+            // If there is saved socket id, and that user does not exist, remove the socket id
             if(req.session.socket_id != undefined){
                 const existing_socket_id = req.session.socket_id
                 if(this.rooms[code].room.users[existing_socket_id] == undefined){
@@ -108,15 +115,13 @@ class RoomsController{
                 }
             }
             // Increase the number of users in the room
-            this.rooms[code].room.users_count++
+            // this.rooms[code].room.users_count++
             // console.log(this.rooms[code].room.ideas)
             // Emit the new users count to all
-            this.rooms[code].io.to(code).emit("update_users_count", {
-                users_count: this.rooms[code].room.users_count
-            })
             res.render("room", {
                 room_code: code,
-                users_count: this.rooms[code].room.users_count
+                // users_count: this.rooms[code].room.users_count
+                users_count: Object.keys(this.rooms[code].room.users).length
             })
         }
         else{
@@ -137,6 +142,7 @@ class RoomsController{
     }
 
     leave_room(req, res){
+        delete this.rooms[req.query.code].room.users[req.session.socket_id]
         req.session.socket_id = undefined
         res.redirect("/create")
     }

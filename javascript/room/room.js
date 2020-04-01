@@ -42,6 +42,8 @@ socket.on("connect", () => {
             userDataToUI()
         }
         else{
+            // console.log("Not first ever");
+            
             // If this is not the first connection
             // Get the old socket id
             const get_old_id_req = $.ajax({
@@ -51,6 +53,7 @@ socket.on("connect", () => {
                 cache: false
             })
             get_old_id_req.done(function(data){
+                // console.log(data.socket_id);
                 user_socket_id = data.socket_id
                 // Get all user data and store it in global variable 'user'
                 const get_user_data_req = $.ajax({
@@ -98,30 +101,9 @@ function copyRoomCode(e){
     }
 }
 
-// Does the actual copy
-function copyToClipboard (str) {
-    const el = document.createElement('textarea');  // Create a <textarea> element
-    el.value = str;                                 // Set its value to the string that you want copied
-    el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
-    el.style.position = 'absolute';                 
-    el.style.left = '-9999px';                      // Move outside the screen to make it invisible
-    document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
-    const selected =            
-      document.getSelection().rangeCount > 0        // Check if there is any content selected previously
-        ? document.getSelection().getRangeAt(0)     // Store selection if found
-        : false;                                    // Mark as false to know no selection existed before
-    el.select();                                    // Select the <textarea> content
-    document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
-    document.body.removeChild(el);                  // Remove the <textarea> element
-    if (selected) {                                 // If a selection existed before copying
-      document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
-      document.getSelection().addRange(selected);   // Restore the original selection
-    }
-}
-
 // When users leave the page
 window.onbeforeunload = function(){
-    socket.emit("decrease_users_count");
+    // socket.emit("decrease_users_count");
 }
 
 // Users count

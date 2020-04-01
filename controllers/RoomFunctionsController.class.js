@@ -5,7 +5,7 @@ class RoomFunctionsController{
         this.emitters = this.emitters.bind(this)
         this.update_room_subject = this.update_room_subject.bind(this)
         this.get_room_subject = this.get_room_subject.bind(this)
-        this.decrease_users_count = this.decrease_users_count.bind(this)
+        // this.decrease_users_count = this.decrease_users_count.bind(this)
         this.add_idea_to_room = this.add_idea_to_room.bind(this)
         this.fetch_all_ideas = this.fetch_all_ideas.bind(this)
         this.add_point = this.add_point.bind(this)
@@ -13,7 +13,9 @@ class RoomFunctionsController{
         this.allow_point = this.allow_point.bind(this)
         this.update_objects_and_points = this.update_objects_and_points.bind(this)
         this.save_notes = this.save_notes.bind(this);
+        this.update_username = this.update_username.bind(this);
         this.get_user_data = this.get_user_data.bind(this);
+        this.socketDisconnected = this.socketDisconnected.bind(this);
     }
 
     // When someone connects on this IO, join him in the room
@@ -29,6 +31,18 @@ class RoomFunctionsController{
         res.send({
             success: true
         })
+    }
+    // Saves users username (POST)
+    update_username(req, res){
+        if(req.body.username.length > 2){
+            this.room.users[req.body.socket_id].username = req.body.username;
+            this.io.to(this.room.roomCode).emit("update_users_list", {
+                users: this.room.users
+            })
+            res.send({
+                success: true
+            })
+        }
     }
     // Gets users notes (GET)
     get_user_data(req, res){
@@ -49,34 +63,44 @@ class RoomFunctionsController{
     // Just returns the room subject to the frontend
     // Used when connecting to the room to download the actual room subject
     get_room_subject(callback){
+        this.io.to(this.room.roomCode).emit("update_users_list", {
+            users: this.room.users
+        })
         callback(this.room.subject)
     }
 
     // Decreases the number of users in a room
-    decrease_users_count(){
-        this.room.users_count--;
-        // Emit the new users count to all
-        this.io.to(this.room.roomCode).emit("update_users_count", {
-            users_count: this.room.users_count
-        })
+    socketDisconnected(){
+        
     }
+    // decrease_users_count(){
+    //     // this.room.users_count--;
+    //     // Emit the new users count to all
+    //     this.io.to(this.room.roomCode).emit("update_users_count", {
+    //         // users_count: this.room.users_count
+    //         users_count: Object.keys(this.room.users).length - 1
+    //     })
+    // }
 
     // Adds the idea to room
     add_idea_to_room(data){
         // Initial idea settings
-        const new_idea = {
-            user_socket_id: data.user_socket_id,
-            id: this.room.ideas.length,
-            text: data.idea,
-            date: Date.now(),
-            points: 0,
-            socket_ids_who_gave_point: [] // array of objects like {socket_id: ... , positive_point: true/false}
-        };
-        this.room.ideas.push(new_idea)
-        this.io.to(this.room.roomCode).emit("new_idea_uploaded", {
-            ideas_count: this.room.ideas.length,
-            idea: new_idea
-        });
+        if(data.idea.length > 0){
+            const new_idea = {
+                user_socket_id: data.user_socket_id,
+                author_username: this.room.users[data.user_socket_id].username,
+                id: this.room.ideas.length,
+                text: data.idea,
+                date: Date.now(),
+                points: 0,
+                socket_ids_who_gave_point: [] // array of objects like {socket_id: ... , positive_point: true/false}
+            };
+            this.room.ideas.push(new_idea)
+            this.io.to(this.room.roomCode).emit("new_idea_uploaded", {
+                ideas_count: this.room.ideas.length,
+                idea: new_idea
+            });
+        }
     }
 
     // Fetches all existing ideas
@@ -154,11 +178,12 @@ class RoomFunctionsController{
     listeners(socket){
         socket.on("update_room_subject", this.update_room_subject)
         socket.on("get_room_subject", this.get_room_subject)
-        socket.on("decrease_users_count", this.decrease_users_count)
+        // socket.on("decrease_users_count", this.decrease_users_count)
         socket.on("new_idea", this.add_idea_to_room)
         socket.on("get_ideas", this.fetch_all_ideas);
         socket.on("add_point", this.add_point);
         socket.on("remove_point", this.remove_point);
+        socket.on("disconnect", this.socketDisconnected);
     }
 
     emitters(socket){

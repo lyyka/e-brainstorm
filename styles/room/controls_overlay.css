@@ -6,7 +6,10 @@
 .room-control{
     outline: none !important;
 }
-.room-control > img{
+.room-control > span > i{
+    color: #7a7a7a;
+}
+/* .room-control > img{
     width: 48px;
     height: 48px;
-}
+} */
