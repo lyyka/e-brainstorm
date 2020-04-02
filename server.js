@@ -29,17 +29,8 @@ app.use(body_parser.urlencoded({
 }))
 app.use(cookieSession({
     name: 'session',
-    keys: ['key1', 'key2']
+    secret: 'abcxyz'
 }))
-
-// CSRF protection
-// const csurf = require('csurf');
-// const cookieParser = require('cookie-parser');
-// const csrfMiddleware = csurf({
-//     cookie: true
-// });
-// app.use(cookieParser());
-// app.use(csrfMiddleware);
 
 // Configure routes
 router = require("./routes/web.js")

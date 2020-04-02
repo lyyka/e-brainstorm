@@ -21,8 +21,15 @@ class RoomsController{
     // Returns true if this is the first ever connection in this session
     // False otherwise
     set_socket_id_to_session(req, res){
+        if(req.session.socket_id != undefined){
+            const existing_socket_id = req.session.socket_id
+            if(this.rooms[req.body.room].room.users[existing_socket_id] == undefined && this.rooms[req.body.room].room.old_user[existing_socket_id] == undefined){
+                req.session.socket_id = undefined
+            }
+        }
         if(req.session != null && req.session.socket_id == undefined){
             // Update/set the session socket id to be used on each reload
+            
             req.session.socket_id = req.body.id
 
             const id_for_nickname = req.body.id.substring(req.body.id.indexOf('#', 0) + 1, req.body.id.length - 6)
@@ -42,7 +49,7 @@ class RoomsController{
                 users_count: Object.keys(this.rooms[req.body.room].room.users).length
             })
 
-            this.rooms[req.body.room].room.modified_user_socket_id = req.session.socket_id;
+            this.rooms[req.body.room].room.modified_ids[this.socket.id] = req.session.socket_id;
             res.send({
                 first_ever: true
             })
@@ -52,11 +59,23 @@ class RoomsController{
             // It saves current users data in case he refreshed the page
             // and will come back immediately, so if there is old_user
             // set the current users data to it
-            if(this.rooms[req.body.room].room.old_user != undefined){
-                this.rooms[req.body.room].room.users[req.session.socket_id] = this.rooms[req.body.room].room.old_user;
-                this.rooms[req.body.room].room.old_user = undefined;
+            if(this.rooms[req.body.room].room.old_user[req.session.socket_id] != undefined){
+                // console.log(`User ${req.session.socket_id} regenerated`);
+                
+                this.rooms[req.body.room].room.users[req.session.socket_id] = this.rooms[req.body.room].room.old_user[req.session.socket_id];
+                delete this.rooms[req.body.room].room.old_user[req.session.socket_id];
+
+                this.rooms[req.body.room].io.to(req.body.room).emit("update_users_list", {
+                    users: this.rooms[req.body.room].room.users
+                })
+    
+                this.rooms[req.body.room].io.to(req.body.room).emit("update_users_count", {
+                    // users_count: this.rooms[code].room.users_count
+                    users_count: Object.keys(this.rooms[req.body.room].room.users).length
+                })
             }
-            this.rooms[req.body.room].room.modified_user_socket_id = req.session.socket_id;
+            this.rooms[req.body.room].room.modified_ids[this.socket.id] = req.session.socket_id;
+            
             res.send({
                 first_ever: false
             })
@@ -89,7 +108,9 @@ class RoomsController{
                 // users_count: 0,
                 ideas: [],
                 users: {}, // key value pairs, nested object, key - socket id, value - object with user data
-                subject: "Brainstorm!"
+                subject: "Brainstorm!",
+                old_user: {},
+                modified_ids: {},
             }
             // pass new io namespace
             room_functions.io = this.io.of(`/room/${room}`)
@@ -116,13 +137,6 @@ class RoomsController{
     join_room(req, res){
         const code = req.params.code
         if(this.rooms[code] != null){
-            // If there is saved socket id, and that user does not exist, remove the socket id
-            if(req.session.socket_id != undefined){
-                const existing_socket_id = req.session.socket_id
-                if(this.rooms[code].room.users[existing_socket_id] == undefined){
-                    req.session.socket_id = undefined
-                }
-            }
             // Increase the number of users in the room
             // this.rooms[code].room.users_count++
             // console.log(this.rooms[code].room.ideas)

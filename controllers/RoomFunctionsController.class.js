@@ -80,13 +80,15 @@ class RoomFunctionsController{
 
     // Decreases the number of users in a room
     socketDisconnected(){
-        this.socket.leave(this.room.roomCode)
+        const curr_main_id = this.socket.id.substring(this.socket.id.indexOf('#') + 1);
 
         // save old user so if current one just refreshed the page, data can be
         // generated
-        this.room.old_user = this.room.users[this.room.modified_user_socket_id];
-        delete this.room.users[this.room.modified_user_socket_id] // modified_user_socket_id is set on set_socket_id_to_session in other controller
+        this.room.old_user[this.room.modified_ids[curr_main_id]] = this.room.users[this.room.modified_ids[curr_main_id]];
         
+        delete this.room.users[this.room.modified_ids[curr_main_id]] // modified_user_socket_id is set on set_socket_id_to_session in other controller
+        delete this.room.modified_ids[curr_main_id]
+
         this.io.to(this.room.roomCode).emit("update_users_list", {
             users: this.room.users
         })
@@ -95,6 +97,7 @@ class RoomFunctionsController{
             // users_count: this.rooms[code].room.users_count
             users_count: Object.keys(this.room.users).length
         })
+        this.socket.leave(this.room.roomCode)
     }
 
     // Adds the idea to room
