@@ -6,8 +6,17 @@
 .room-control{
     outline: none !important;
 }
-.room-control > span > i{
+.room-control > span.icon > i{
     color: #7a7a7a;
+}
+.room-control > span.icon{
+    font-size: 2rem;
+}
+
+@media screen and (max-width: 768px){
+    .room-control > span.icon{
+        font-size: 1.5rem;
+    }
 }
 /* .room-control > img{
     width: 48px;

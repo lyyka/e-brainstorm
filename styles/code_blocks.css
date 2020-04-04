@@ -1,0 +1,9 @@
+.code-block-wrap{
+    display: inline-block;
+    width: 12%;
+}
+.code-block-wrap > input{
+    text-align: center;
+    height: 75px;
+    outline: none;
+}

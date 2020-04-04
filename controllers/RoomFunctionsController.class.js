@@ -1,131 +1,80 @@
 class RoomFunctionsController{
     constructor(){
+        this.parent = undefined;
+        this.io = undefined;
         this.onConnection = this.onConnection.bind(this)
         this.listeners = this.listeners.bind(this)
         this.emitters = this.emitters.bind(this)
         this.update_room_subject = this.update_room_subject.bind(this)
         this.get_room_subject = this.get_room_subject.bind(this)
-        // this.decrease_users_count = this.decrease_users_count.bind(this)
         this.add_idea_to_room = this.add_idea_to_room.bind(this)
-        this.fetch_all_ideas = this.fetch_all_ideas.bind(this)
         this.add_point = this.add_point.bind(this)
         this.remove_point = this.remove_point.bind(this)
         this.allow_point = this.allow_point.bind(this)
         this.update_objects_and_points = this.update_objects_and_points.bind(this)
         this.save_notes = this.save_notes.bind(this);
         this.update_username = this.update_username.bind(this);
-        this.get_socket_id = this.get_socket_id.bind(this)
-        this.get_user_data = this.get_user_data.bind(this);
-        this.socketDisconnected = this.socketDisconnected.bind(this);
     }
 
     // When someone connects on this IO, join him in the room
     onConnection(socket){
         this.socket = socket
-        this.socket.join(this.room.roomCode)
+        this.socket.join(this.parent.room.roomCode)
         this.listeners(socket)
     }
 
     // Saves users notes (POST)
     save_notes(req, res){
-        this.room.users[req.body.socket_id].notes = req.body.notes;
-        res.send({
-            success: true
-        })
+        req.session.user.notes = req.body.notes;
+        return true;
     }
     // Saves users username (POST)
     update_username(req, res){
-        if(req.body.username.length > 2){
-            this.room.users[req.body.socket_id].username = req.body.username;
-            // Update users list for everyone
-            this.io.to(this.room.roomCode).emit("update_users_list", {
-                users: this.room.users
-            })
-            res.send({
-                success: true
-            })
+        if(req.body.username.length > 2 && req.body.username.length <= 16){
+            req.session.user.username = req.body.username;
+            return true;
         }
-    }
-
-    get_socket_id(req, res){
-        // WHen getting socket id on socket connection from front end
-        // Send the existing socket id AND users list to update
-        res.send({
-            socket_id: req.session.socket_id,
-            users: this.room.users
-        })
-    }
-
-    // Gets users notes (GET)
-    get_user_data(req, res){
-        res.send({
-            user: this.room.users[req.query.socket_id]
-        })
+        else{
+            return false;
+        }
     }
 
     // Update rooms subject
     update_room_subject(data, callback){
         const subject = data.subject
-        this.room.subject = subject
+        this.parent.room.subject = subject
         // Emit the event to others in the room
-        this.io.to(this.room.roomCode).emit("subject_changed", subject)
+        this.io.to(this.parent.room.roomCode).emit("subject_changed", subject)
         callback(subject)
     }
 
     // Just returns the room subject to the frontend
     // Used when connecting to the room to download the actual room subject
     get_room_subject(callback){
-        callback(this.room.subject)
-    }
-
-    // Decreases the number of users in a room
-    socketDisconnected(){
-        const curr_main_id = this.socket.id.substring(this.socket.id.indexOf('#') + 1);
-
-        // save old user so if current one just refreshed the page, data can be
-        // generated
-        this.room.old_user[this.room.modified_ids[curr_main_id]] = this.room.users[this.room.modified_ids[curr_main_id]];
-        
-        delete this.room.users[this.room.modified_ids[curr_main_id]] // modified_user_socket_id is set on set_socket_id_to_session in other controller
-        delete this.room.modified_ids[curr_main_id]
-
-        this.io.to(this.room.roomCode).emit("update_users_list", {
-            users: this.room.users
-        })
-
-        this.io.to(this.room.roomCode).emit("update_users_count", {
-            // users_count: this.rooms[code].room.users_count
-            users_count: Object.keys(this.room.users).length
-        })
-        this.socket.leave(this.room.roomCode)
+        callback(this.parent.room.subject)
     }
 
     // Adds the idea to room
-    add_idea_to_room(data){
+    add_idea_to_room(req){
         // Initial idea settings
-        if(data.idea.length > 0){
+        if(req.body.idea.length > 0){
             const new_idea = {
-                user_socket_id: data.user_socket_id,
-                author_username: this.room.users[data.user_socket_id].username,
-                id: this.room.ideas.length,
-                text: data.idea,
+                user_socket_id: req.body.usid,
+                author_username: req.session.user.username,
+                id: this.parent.room.ideas.length,
+                text: req.body.idea,
                 date: Date.now(),
                 points: 0,
                 socket_ids_who_gave_point: [] // array of objects like {socket_id: ... , positive_point: true/false}
             };
-            this.room.ideas.push(new_idea)
-            this.io.to(this.room.roomCode).emit("new_idea_uploaded", {
-                ideas_count: this.room.ideas.length,
+            this.parent.room.ideas.push(new_idea)
+            this.io.to(this.parent.room.roomCode).emit("new_idea_uploaded", {
+                ideas_count: this.parent.room.ideas.length,
                 idea: new_idea
             });
+            return true;
         }
-    }
-
-    // Fetches all existing ideas
-    fetch_all_ideas(callback){
-        callback({
-            ideas: this.room.ideas
-        })
+        return false;
     }
 
     // Check if the user already gave a point to an idea
@@ -136,8 +85,8 @@ class RoomFunctionsController{
         let existing = false
         let index = -1
         // Finds if the user already gave some sort of point and gets the index of it
-        for(let i = 0; i < this.room.ideas[idea_id].socket_ids_who_gave_point.length && !existing; i++){
-            existing = (String(this.room.ideas[idea_id].socket_ids_who_gave_point[i].socket_id) == String(user_socket_id))
+        for(let i = 0; i < this.parent.room.ideas[idea_id].socket_ids_who_gave_point.length && !existing; i++){
+            existing = (String(this.parent.room.ideas[idea_id].socket_ids_who_gave_point[i].socket_id) == String(user_socket_id))
             if(existing){
                 index = i
             }
@@ -148,15 +97,15 @@ class RoomFunctionsController{
             // if the user wants to give positive point, but already gave negative, or
             // if the user wants to give negative point, but already gave positive,
             // delete the existing one, and allow the user to make change
-            if(positive_point != this.room.ideas[idea_id].socket_ids_who_gave_point[index].positive_point){
+            if(positive_point != this.parent.room.ideas[idea_id].socket_ids_who_gave_point[index].positive_point){
                 add_socket_id = false;
-                this.room.ideas[idea_id].socket_ids_who_gave_point.splice(index, 1);
+                this.parent.room.ideas[idea_id].socket_ids_who_gave_point.splice(index, 1);
                 return true;
             }
         }
 
         if(add_socket_id && index < 0){
-            this.room.ideas[idea_id].socket_ids_who_gave_point.push({
+            this.parent.room.ideas[idea_id].socket_ids_who_gave_point.push({
                 socket_id: user_socket_id,
                 positive_point: positive_point
             });
@@ -167,40 +116,39 @@ class RoomFunctionsController{
 
     // Adds a point to idea with specified ID
     add_point(data){
-        if(this.room.ideas[data.idea_id].user_socket_id != data.user_socket_id){
+        if(this.parent.room.ideas[data.idea_id].user_socket_id != data.user_socket_id){
             if(this.allow_point(data.idea_id, data.user_socket_id, true)){
                 this.update_objects_and_points(data, 1);
+                return true;
             }
         }
+        return false;
     }
 
     // Removes a point from an idea with specified ID
     remove_point(data){
-        if(this.room.ideas[data.idea_id].user_socket_id != data.user_socket_id){
+        if(this.parent.room.ideas[data.idea_id].user_socket_id != data.user_socket_id){
             if(this.allow_point(data.idea_id, data.user_socket_id, false)){
                 this.update_objects_and_points(data, -1);
+                return true;
             }
         }
+        return false;
     }
 
     // Updates points based on add_point and remove_point methods
     // Changes the number of points
     update_objects_and_points(data, addition){
-        this.room.ideas[data.idea_id].points += addition;
-        this.io.to(this.room.roomCode).emit("update_points", {
+        this.parent.room.ideas[data.idea_id].points += addition;
+        this.io.to(this.parent.room.roomCode).emit("update_points", {
             idea_id: data.idea_id,
-            points: this.room.ideas[data.idea_id].points
+            points: this.parent.room.ideas[data.idea_id].points
         });
     }
 
     listeners(socket){
         socket.on("update_room_subject", this.update_room_subject)
         socket.on("get_room_subject", this.get_room_subject)
-        socket.on("new_idea", this.add_idea_to_room)
-        socket.on("get_ideas", this.fetch_all_ideas);
-        socket.on("add_point", this.add_point);
-        socket.on("remove_point", this.remove_point);
-        socket.on("disconnect", this.socketDisconnected);
     }
 
     emitters(socket){
@@ -208,4 +156,4 @@ class RoomFunctionsController{
     }
 }
 
-module.exports = new RoomFunctionsController()
+module.exports = RoomFunctionsController

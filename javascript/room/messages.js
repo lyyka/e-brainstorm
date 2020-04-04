@@ -1,3 +1,4 @@
+let opened = false;
 $(document).ready(function(){
     // Fix positioning of elements in chat
     const controls_height = $("#msg-controls").outerHeight();
@@ -7,17 +8,16 @@ $(document).ready(function(){
     // ui events
     $("#close-chat").click(closeChat)
     $("#open-chat").click(openChat)
-    // socket events
-    socket.on("update_users_list", update)
 });
 
 function openChat(e){
-    $("#main-chat-wrap").show();
+    if (opened) { $("#main-chat-wrap").hide(); opened = false; }
+    else{
+        opened = true;
+        $("#main-chat-wrap").show();
+    }
 }
 function closeChat(e){
+    opened = false;
     $("#main-chat-wrap").hide();
-}
-
-function update(data){
-    updateUsersList(data.users)
 }

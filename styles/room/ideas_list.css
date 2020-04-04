@@ -17,3 +17,19 @@
     padding-top: 5px;
     /* word-wrap: normal; */
 }
+
+#brainstorming-subject-title-wrap{
+    font-size: 1.7rem;
+}
+
+@media screen and (max-width: 768px){
+    .idea-block{
+        width: 100%;
+    }
+    .idea-block-body{
+        height: 150px;
+    }
+    #brainstorming-subject-title-wrap{
+        font-size: 1.3rem;
+    }
+}

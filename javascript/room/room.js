@@ -14,12 +14,7 @@ function docReady(fn) {
 docReady(onLoad)
 
 const socket = io(`/room/${roomCode}`)
-// socket.on('connect_error', (error) => {
-//     console.log(error)
-// });
 socket.on("connect", () => {
-    // socket.id is current
-
     const save_to_sess_req = $.ajax({
         url: "/socketid/save_to_session",
         data: {
@@ -31,47 +26,11 @@ socket.on("connect", () => {
         cache: false
     })
     save_to_sess_req.done(function(data){
-        // If this is first ever connection on this session
-        // No need to call server for socket id, we can use the one we have
-        if(data.first_ever){
-            user_socket_id = socket.id
-            user = {
-                notes: "",
-                username: "User#" + socket.id.substring(socket.id.indexOf("#") + 1, socket.id.length - 6)
-            }
+        if(data.success){
+            user_socket_id = data.sid
+            user = data.user
             userDataToUI()
-            // updateUsersList(data.users)
-        }
-        else{
-            // console.log("Not first ever");
-            
-            // If this is not the first connection
-            // Get the old socket id
-            const get_old_id_req = $.ajax({
-                url: "/socketid",
-                type: "GET",
-                async: true,
-                cache: false
-            })
-            get_old_id_req.done(function(data){
-                // console.log(data.socket_id);
-                user_socket_id = data.socket_id
-                updateUsersList(data.users)
-                // Get all user data and store it in global variable 'user'
-                const get_user_data_req = $.ajax({
-                    url: "/users/get_data",
-                    data: {
-                        socket_id: user_socket_id
-                    },
-                    type: "GET",
-                    async: true,
-                    cache: false
-                })
-                get_user_data_req.done(function(data){
-                    user = data.user
-                    userDataToUI()
-                })
-            })
+            loadExistingIdeas()
         }
     })    
 })
@@ -85,16 +44,6 @@ function onLoad(e){
     const room_code_text = document.getElementById("room-code-text")
     room_code_text.innerText = separateRoomCode(roomCode)
     room_code_text.addEventListener("click", copyRoomCode);
-
-    // When users leave the page
-    // window.addEventListener("beforeunload", function (e) {
-    //     socket.emit("page_refresh_leave", {
-    //         code: roomCode
-    //     });
-
-    //     (e || window.event).returnValue = null;
-    //     return null;
-    // });
 }
 
 // Copy room code when user clicks on it
@@ -109,9 +58,3 @@ function copyRoomCode(e){
         }, 1500);
     }
 }
-
-// Users count
-socket.on("update_users_count", function(data){
-    const users_count = data.users_count
-    document.getElementById('users_count').innerText = `${users_count} people brainstorming`
-});

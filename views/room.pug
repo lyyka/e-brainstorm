@@ -22,39 +22,27 @@ block content
     //- Notes paper
     include room_components/notes_paper
 
-    //- Users list modal
-    include room_components/users_list_modal
-
     //- Chat
     include room_components/chat
 
     //- Page elements
-    div(class="container mt-5")
+    div(class="container mt-2 mt-md-5")
 
         //- Holds the room code on top of the page
         h3(class="text-center cursor-pointer" id="room-code-text")
         //- Leave the room button
         div(class="text-right mb-3")
-            //- button(type="button" class = "bg-white rounded shadow-sm text-center border p-2 mr-3 d-inline-block" id = 'open-chat')
-            //-     i(class = 'fas fa-users mr-2')
-            //-     span Msgs
-            //- button(type="button" class = "bg-white rounded shadow-sm text-center border p-2 mr-3 d-inline-block" data-toggle="modal" data-target="#usersListModal")
-            //-     i(class = 'fas fa-users mr-2')
-            //-     span Users
-
             a(href="/create" id = "leave-btn" class="d-inline-block px-3 text-center remove-underline rounded shadow-sm border py-2 pink-bg text-white")
                 i(class = 'fas fa-door-open mr-2')
                 span Leave Room
             
 
-        div(class="rounded shadow-sm border p-4 my-3 bg-white")
+        div(class="rounded shadow-sm border p-3 my-3 bg-white")
             //- Shows current brainstorming subject and a button to open up the modal
-            h3 
+            span(id='brainstorming-subject-title-wrap' class = 'd-block')
                 span(id="brainstorming-subject-title") What's the brainstorming subject?
                 button(type="button" class = "bg-transparent border-0" data-toggle="modal" data-target="#changeSubjectModal")
                     i(class="ml-2 far fa-edit pink-text cursor-pointer")
-            //- Show users count
-            p(id="users_count" class="text-muted mb-0")
             div(id="username" contenteditable = "true" class="text-muted mb-0 d-inline-block")
 
         //- Ideas panel
@@ -84,21 +72,16 @@ block scripts
     //- Load variables
     script.
         roomCode="#{room_code}"
-        users_count="#{users_count}"
-        //- document.getElementById("leave-btn").href = "/leave_room?code=" + roomCode
-        document.getElementById('users_count').innerText = `${users_count} people brainstorming`
     
     script(src="/javascript/separate_room_code.js")
-    //- Update users list (ONLY FUNCTION)
-    script(src="/javascript/room/update_users_list.js")
+    //- Ideas handler
+    script(src="/javascript/room/ideas.js")
     //- Room sockets
     script(src="/javascript/room/room.js")
     //- Subject updating
     script(src="/javascript/room/update_subject.js")
     //- Username updating
     script(src="/javascript/room/update_username.js")
-    //- Ideas handler
-    script(src="/javascript/room/ideas.js")
     //- Notes handler
     script(src="/javascript/room/notes.js")
     //- Messages handler
