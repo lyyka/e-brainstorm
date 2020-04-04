@@ -15,7 +15,6 @@ function updateUsername(e){
         data: {
             socket_id: user_socket_id,
             username: username,
-            code: roomCode
         },
         async: true,
         cache: false

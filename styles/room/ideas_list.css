@@ -17,3 +17,19 @@
     padding-top: 5px;
     /* word-wrap: normal; */
 }
+
+#main-cont{
+    margin-top: 3rem !important;
+}
+
+@media screen and (max-width: 768px){
+    .idea-block{
+        width: 100%;
+    }
+    .idea-block-body{
+        height: 150px;
+    }
+    #main-cont{
+        margin-top: 1.5rem !important;
+    }
+}

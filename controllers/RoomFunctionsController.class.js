@@ -7,20 +7,13 @@ class RoomFunctionsController{
         this.emitters = this.emitters.bind(this)
         this.update_room_subject = this.update_room_subject.bind(this)
         this.get_room_subject = this.get_room_subject.bind(this)
-        // this.decrease_users_count = this.decrease_users_count.bind(this)
         this.add_idea_to_room = this.add_idea_to_room.bind(this)
-        this.fetch_all_ideas = this.fetch_all_ideas.bind(this)
         this.add_point = this.add_point.bind(this)
         this.remove_point = this.remove_point.bind(this)
         this.allow_point = this.allow_point.bind(this)
         this.update_objects_and_points = this.update_objects_and_points.bind(this)
         this.save_notes = this.save_notes.bind(this);
         this.update_username = this.update_username.bind(this);
-        // this.get_socket_id = this.get_socket_id.bind(this)
-        // this.get_user_data = this.get_user_data.bind(this);
-        this.socketDisconnected = this.socketDisconnected.bind(this);
-        this.socketDisconnectedClient = this.socketDisconnectedClient.bind(this)
-        this.socketDisconnectedServer = this.socketDisconnectedServer.bind(this)
     }
 
     // When someone connects on this IO, join him in the room
@@ -32,42 +25,19 @@ class RoomFunctionsController{
 
     // Saves users notes (POST)
     save_notes(req, res){
-        this.parent.room.users[req.body.socket_id].notes = req.body.notes;
+        req.session.user.notes = req.body.notes;
+        return true;
     }
     // Saves users username (POST)
     update_username(req, res){
-        if(req.body.username.length > 2){
-            this.parent.room.users[req.body.socket_id].username = req.body.username;
-            // Update users list for everyone
-            this.io.to(this.parent.room.roomCode).emit("update_users_list", {
-                users: this.parent.room.users
-            })
-            res.send({
-                success: true
-            })
+        if(req.body.username.length > 2 && req.body.username.length <= 16){
+            req.session.user.username = req.body.username;
+            return true;
         }
         else{
-            res.send({
-                success: false
-            })
+            return false;
         }
     }
-
-    // get_socket_id(req, res){
-    //     // WHen getting socket id on socket connection from front end
-    //     // Send the existing socket id AND users list to update
-    //     res.send({
-    //         socket_id: req.session.socket_id,
-    //         users: this.parent.room.users
-    //     })
-    // }
-
-    // Gets users notes (GET)
-    // get_user_data(req, res){
-    //     res.send({
-    //         user: this.parent.room.users[req.query.socket_id]
-    //     })
-    // }
 
     // Update rooms subject
     update_room_subject(data, callback){
@@ -84,50 +54,15 @@ class RoomFunctionsController{
         callback(this.parent.room.subject)
     }
 
-    socketDisconnectedClient(req, res){
-        this.socketDisconnected(req.session.socket_id);
-    }
-
-    socketDisconnectedServer(){
-        this.socketDisconnected(this.base_id);
-    }
-
-    // Decreases the number of users in a room
-    socketDisconnected(socket_id){
-        // save old user so if current one just refreshed the page, data can be
-        // generated
-        // console.log(this.parent.room);
-        
-        this.parent.room.old_user[socket_id] = this.parent.room.users[socket_id];
-        
-        console.log("Users before disconnect of " + socket_id)
-        console.log(this.parent.room.users)
-        
-        delete this.parent.room.users[socket_id]
-
-        console.log("Users after disconnect of " + socket_id)
-        console.log(this.parent.room.users)
-
-        this.io.to(this.parent.room.roomCode).emit("update_users_list", {
-            users: this.parent.room.users
-        })
-
-        this.io.to(this.parent.room.roomCode).emit("update_users_count", {
-            // users_count: this.parent.rooms[code].parent.room.users_count
-            users_count: Object.keys(this.parent.room.users).length
-        })
-        this.socket.leave(this.parent.room.roomCode)
-    }
-
     // Adds the idea to room
-    add_idea_to_room(data){
+    add_idea_to_room(req){
         // Initial idea settings
-        if(data.idea.length > 0){
+        if(req.body.idea.length > 0){
             const new_idea = {
-                user_socket_id: data.user_socket_id,
-                author_username: this.parent.room.users[data.user_socket_id].username,
+                user_socket_id: req.body.usid,
+                author_username: req.session.user.username,
                 id: this.parent.room.ideas.length,
-                text: data.idea,
+                text: req.body.idea,
                 date: Date.now(),
                 points: 0,
                 socket_ids_who_gave_point: [] // array of objects like {socket_id: ... , positive_point: true/false}
@@ -137,14 +72,9 @@ class RoomFunctionsController{
                 ideas_count: this.parent.room.ideas.length,
                 idea: new_idea
             });
+            return true;
         }
-    }
-
-    // Fetches all existing ideas
-    fetch_all_ideas(callback){
-        callback({
-            ideas: this.parent.room.ideas
-        })
+        return false;
     }
 
     // Check if the user already gave a point to an idea
@@ -189,8 +119,10 @@ class RoomFunctionsController{
         if(this.parent.room.ideas[data.idea_id].user_socket_id != data.user_socket_id){
             if(this.allow_point(data.idea_id, data.user_socket_id, true)){
                 this.update_objects_and_points(data, 1);
+                return true;
             }
         }
+        return false;
     }
 
     // Removes a point from an idea with specified ID
@@ -198,8 +130,10 @@ class RoomFunctionsController{
         if(this.parent.room.ideas[data.idea_id].user_socket_id != data.user_socket_id){
             if(this.allow_point(data.idea_id, data.user_socket_id, false)){
                 this.update_objects_and_points(data, -1);
+                return true;
             }
         }
+        return false;
     }
 
     // Updates points based on add_point and remove_point methods
@@ -215,11 +149,6 @@ class RoomFunctionsController{
     listeners(socket){
         socket.on("update_room_subject", this.update_room_subject)
         socket.on("get_room_subject", this.get_room_subject)
-        socket.on("new_idea", this.add_idea_to_room)
-        socket.on("get_ideas", this.fetch_all_ideas);
-        socket.on("add_point", this.add_point);
-        socket.on("remove_point", this.remove_point);
-        // socket.on("disconnect", this.socketDisconnectedServer);
     }
 
     emitters(socket){

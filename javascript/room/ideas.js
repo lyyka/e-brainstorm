@@ -15,8 +15,6 @@ function onLoad(e) {
     document.getElementById("send-idea").addEventListener("click", sendIdea)
     socket.on('new_idea_uploaded', newIdeaReceived);
     socket.on('update_points', updatePoints);
-    // socket.on('point_removed', pointRemovedReceived);
-    socket.emit('get_ideas', loadExistingIdeas)
 }
 
 function sendIdeaOnEnter(e){
@@ -30,10 +28,16 @@ function sendIdea(e){
     const idea = idea_input.value
     if(idea.length > 0){
         idea_input.value = ""
-        socket.emit("new_idea", {
-            user_socket_id: user_socket_id,
-            idea: idea
-        })
+        const req = $.ajax({
+            url: '/ideas/add',
+            type: 'POST',
+            data: {
+                usid: user_socket_id,
+                idea: idea
+            },
+            async: true,
+            cache: false
+        });
     }
 }
 
@@ -42,11 +46,19 @@ function newIdeaReceived(data) {
     addIdeaToList(data.idea)
 }
 
-function loadExistingIdeas(data){
-    setStatusTextAndImage(data.ideas.length)
-    data.ideas.forEach(idea => {
-        addIdeaToList(idea)
+function loadExistingIdeas(){
+    const req = $.ajax({
+        url: '/ideas/get_all',
+        type: 'GET',
+        async: true,
+        cache: false
     })
+    req.done(function(data){
+        setStatusTextAndImage(data.ideas.length)
+        data.ideas.forEach(idea => {
+            addIdeaToList(idea)
+        })
+    });
 }
 
 function setStatusTextAndImage(ideas_list_len){
@@ -100,15 +112,18 @@ function addIdeaToList(idea){
 
     const arrows_p = document.createElement("p");
     arrows_p.classList.add("text-right");
+    
     if(idea.user_socket_id != user_socket_id){
         const arrow_up = document.createElement("i");
         arrow_up.classList.add("fas", "fa-arrow-up", "mr-2", "text-muted", "cursor-pointer");
         arrow_up.setAttribute("data-id", idea.id);
-        arrow_up.addEventListener("click", add_point_to_idea);
+        $(arrow_up).click(add_point_to_idea)
+        // arrow_up.addEventListener("click", add_point_to_idea);
         const arrow_down = document.createElement("i");
         arrow_down.classList.add("fas", "fa-arrow-down", "mr-2", "text-muted", "cursor-pointer");
         arrow_down.setAttribute("data-id", idea.id);
-        arrow_down.addEventListener("click", remove_point_from_idea);
+        // arrow_down.addEventListener("click", remove_point_from_idea);
+        $(arrow_down).click(remove_point_from_idea)
         arrows_p.appendChild(arrow_up);
         arrows_p.appendChild(arrow_down);
     }
@@ -162,13 +177,32 @@ function addIdeaToList(idea){
 
 // When a user adds a point
 function add_point_to_idea(e){
-    // const existing_points = this.parentNode.childNodes[2].innerText;
-    // this.parentNode.childNodes[2].innerText = Number(existing_points) + 1
-    const id = this.getAttribute("data-id");
-    socket.emit("add_point", {
-        user_socket_id: user_socket_id,
-        idea_id: id
-    });
+    const id = $(this).attr('data-id');
+    $.ajax({
+        url: '/ideas/add_point',
+        type: 'POST',
+        data: {
+            sid: user_socket_id,
+            idea_id: id
+        },
+        async: true,
+        cache: false
+    })
+}
+
+// When a user removes a point
+function remove_point_from_idea(e) {
+    const id = $(this).attr('data-id');
+    $.ajax({
+        url: '/ideas/remove_point',
+        type: 'POST',
+        data: {
+            sid: user_socket_id,
+            idea_id: id
+        },
+        async: true,
+        cache: false
+    })
 }
 
 // Callback to be called when someone else adds a point
@@ -190,15 +224,4 @@ function updatePoints(data){
             }
         }
     }
-}
-
-// When a user removes a point
-function remove_point_from_idea(e){
-    // const existing_points = this.parentNode.childNodes[2].innerText;
-    // this.parentNode.childNodes[2].innerText = Number(existing_points) - 1
-    const id = this.getAttribute("data-id");
-    socket.emit("remove_point", {
-        user_socket_id: user_socket_id,
-        idea_id: id
-    });
 }
