@@ -68,7 +68,7 @@ function setStatusTextAndImage(ideas_list_len){
         img_wrap.id = "no-ideas-img"
         img_wrap.classList.add('text-center')
         const no_ideas_img = document.createElement("img")
-        no_ideas_img.src = "/images/space.png"
+        no_ideas_img.src = "/images/noimg.png"
         no_ideas_img.classList.add("img-fluid", "space-guy-img")
         img_wrap.appendChild(no_ideas_img)
         const ideas_panel = document.getElementById("ideas-panel")

@@ -1,4 +1,5 @@
-let check_appended = false
+let current_check = undefined
+let timeout = undefined
 
 $(document).ready(function(){
     $("#username").on("input", updateUsername)
@@ -20,14 +21,20 @@ function updateUsername(e){
         cache: false
     })
     req.done(function(data){
-        if(data.success && !check_appended){
-            check_appended = true;
-            const i = $("<i class = 'ml-2 text-success fas fa-check'></i>")
-            wrapper.append(i)
-            window.setTimeout(function(){
-                i.remove()
-                check_appended = false
-            }, 2000)
+        window.clearTimeout(timeout);
+        if(current_check != undefined) {
+            current_check.remove();
         }
+        if(data.success){
+            current_check = $("<i class = 'ml-2 text-success fas fa-check'></i>")
+            
+        }
+        else if(!data.success){
+            current_check = $("<i class = 'ml-2 text-danger fas fa-times'></i>")
+        }
+        wrapper.append(current_check)
+        timeout = window.setTimeout(function () {
+            current_check.remove()
+        }, 2000)
     })
 }

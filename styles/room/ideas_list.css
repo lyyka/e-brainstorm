@@ -18,8 +18,8 @@
     /* word-wrap: normal; */
 }
 
-#main-cont{
-    margin-top: 3rem !important;
+#brainstorming-subject-title-wrap{
+    font-size: 1.7rem;
 }
 
 @media screen and (max-width: 768px){
@@ -29,7 +29,7 @@
     .idea-block-body{
         height: 150px;
     }
-    #main-cont{
-        margin-top: 1.5rem !important;
+    #brainstorming-subject-title-wrap{
+        font-size: 1.3rem;
     }
 }

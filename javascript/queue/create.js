@@ -10,43 +10,42 @@ function docReady(fn) {
 }
 docReady(onLoad)
 
-let create_room_event_lsitener_set = false
 let created_room_code = ""
 
 // Function called on page load
 function onLoad(e){
-    // Used to bind the on click listener to the create room button
-    bind_listener = () => {
-        create_room_event_lsitener_set = true
-        document.getElementById('create_new_session_btn').addEventListener("click", create_new_room)
-    }
-
-    // Check if the room is already generated through cookies
-    // cookie_handler = new CookieHandler()
-    // generated_room = cookie_handler.get_cookie("generated_room", document)
-
-    // If room is already generated
-    // if(generated_room != undefined){
-        // Remove the button
-        // removeCreateRoomButton()
-
-        // Update with existing info
-        // update_room_info_wrapper(generated_room)
-    // }
-    // else{
-        // Bind click listener on the button
-        bind_listener()
-    // }
+    document.getElementById('create_new_session_btn').addEventListener("click", create_new_room)
+    $(".code-block-input").on('input', copyToHidden);
+    $(".code-block-input").on('focus', codeBlockFocused);
 }
 
-// Removes the button from the DOM along with its event listener
-function removeCreateRoomButton(){
-    const create_button = document.getElementById('create_new_session_btn')
-    create_button.parentNode.removeChild(create_button)
-    if(create_room_event_lsitener_set){
-        create_button.removeEventListener("click", create_new_room)
-        create_room_event_lsitener_set = false
+// Copis the divided code blocks into one input for join part
+function copyToHidden(e){
+    const current_input = $(this);
+    if(current_input.val() != ""){
+        let current_input_index = 0;
+
+        const inputs = $(".code-block-input");
+        let text = "";
+        for (let i = 0; i < inputs.length; i++) {
+            console.log(inputs.eq(i)[0]);
+            console.log(current_input[0]);
+
+            if (inputs.eq(i)[0] == current_input[0]) { current_input_index = i; }
+            text += inputs.eq(i).val();
+        }
+        $("#hidden-code").val(text);
+
+        if (current_input_index + 1 < inputs.length) {
+            inputs.eq(current_input_index + 1).focus()
+        }
+        else {
+            inputs.eq(0).focus()
+        }
     }
+}
+function codeBlockFocused(e){
+    $(this).select();
 }
 
 // On button click, create new room if one not already created
@@ -55,7 +54,9 @@ function create_new_room(e){
     socket.emit("create_new_session", function(feedback){
         if(feedback.success){
             // Delete the create button so no new rooms can be created
-            removeCreateRoomButton()
+            const create_button = document.getElementById('create_new_session_btn')
+            create_button.parentNode.removeChild(create_button)
+            create_button.removeEventListener("click", create_new_room)
 
             // Update the room info wrapper
             created_room_code = feedback.room_code
@@ -115,15 +116,3 @@ function copyRoomCode(e){
         }, 1500);
     }
 }
-
-// JUST FOR TESTING
-// function deleteAllCookies() {
-//     var cookies = document.cookie.split(";");
-
-//     for (var i = 0; i < cookies.length; i++) {
-//         var cookie = cookies[i];
-//         var eqPos = cookie.indexOf("=");
-//         var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-//         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-//     }
-// }

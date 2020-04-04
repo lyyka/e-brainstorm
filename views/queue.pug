@@ -1,51 +1,60 @@
 extends templates/template
 
+block styles
+    //- Controls overlay style
+    link(rel="stylesheet", href="/styles/code_blocks.css")
+    link(rel="stylesheet", href="/styles/nav.css")
+
 block content
-    div(class = "container mt-5")
-        div(class = 'row mb-5')
-            div(class = 'col-lg-6 mb-5')
-                h1 Create new session
-                p(class = "text-muted") You can create new session by clicking on the button on the right side. You will get your session code which other users can use to join the session.
+    div(id='nav' class = 'bg-white px-2 py-2')
+        div(class = 'text-center')
+            img(src="/images/brainstorm.png" class = 'img-fluid rounded-circle' alt="Logo")
+            h3(class = 'd-inline-block ml-2') E-Brainstorming
+    div(class = 'row mb-5')
+        div(class = 'col-lg-6 p-5 bg-white')
+            h3 Create new session
+            p(class = "text-muted") You can create new session by clicking on the below button. You will get your session code which other users can use to join the session.
+            button(
+                id = "create_new_session_btn"
+                class = "rounded shadow-sm border w-100 py-2 pink-bg text-white"
+            ) Click to get session code!
+            div(id="room_info_wrapper")
+        div(class = 'col-lg-6 p-5')
+            h3 Join a session
+            p(class = "text-muted") Request a session code from your group, paste it below and join their brainstorming session.
+            form(action="/room/join", method="post")
+                input(type="hidden" name = 'code' id = 'hidden-code')
+                div(id='code-blocks-wrap' class = 'mb-2')
+                    div(class = 'code-block-wrap')
+                        input(type="text" maxlength = "1" class = 'w-100 border border-right-0 code-block-input shadow-sm bg-white rounded p-1' placeholder = '0')
+                    div(class = 'code-block-wrap')
+                        input(type="text" maxlength = "1" class = 'w-100 border border-right-0 code-block-input shadow-sm bg-white rounded p-1' placeholder = '0')
+                    div(class = 'code-block-wrap')
+                        input(type="text" maxlength = "1" class = 'w-100 border border-right-0 code-block-input shadow-sm bg-white rounded p-1' placeholder = '0')
+                    div(class = 'code-block-wrap')
+                        input(type="text" maxlength = "1" class = 'w-100 border border-right-0 code-block-input shadow-sm bg-white rounded p-1' placeholder = '0')
+                    div(class = 'code-block-wrap')
+                        input(type="text" maxlength = "1" class = 'w-100 border border-right-0 code-block-input shadow-sm bg-white rounded p-1' placeholder = '0')
+                    div(class = 'code-block-wrap')
+                        input(type="text" maxlength = "1" class = 'w-100 border border-right-0 code-block-input shadow-sm bg-white rounded p-1' placeholder = '0')
+                    div(class = 'code-block-wrap')
+                        input(type="text" maxlength = "1" class = 'w-100 border border-right-0 code-block-input shadow-sm bg-white rounded p-1' placeholder = '0')
+                    div(class = 'code-block-wrap')
+                        input(type="text" maxlength = "1" class = 'w-100 border code-block-input shadow-sm bg-white rounded p-1' placeholder = '0')
+                
+                label(class='text-danger d-none' id = "join-error-lb")
                 button(
-                    id = "create_new_session_btn"
-                    class = "rounded shadow-sm border w-100 py-2 pink-bg text-white"
-                ) Click to get session code!
-                div(id="room_info_wrapper")
-            div(class = 'col-lg-6 mb-4')
-                h1 Join a session
-                p(class = "text-muted") Request a session code from your group, paste it in the input field on the right, and join their brainstorming session!
-                form(action="/room/join", method="post")
-                    input(type="text" name="code" placeholder="Session code" class = "w-100 rounded shadow-sm border mb-2 py-2 px-3")
-                    label(class='text-danger d-none' id = "join-error-lb")
-                    button(
-                        type="submit" id="join-existing-session" class = "text-white pink-bg rounded shadow-sm border mb-4 py-2 px-3"
-                    )
-                        i(class="fas fa-users mr-2")
-                        span Join
-        //- div(class = "row mb-5")
-        //-     div(class = "col-lg-6")
-        //-         h1 Create new session
-        //-         p(class = "text-muted") You can create new session by clicking on the button on the right side. You will get your session code which other users can use to join the session. You can join the room any time and you will still be able to share the session code.
-        //-     div(class = "col-lg-6")
-        //-         button(
-        //-             id = "create_new_session_btn"
-        //-             class = "rounded shadow-sm border w-100 py-2 pink-bg text-white"
-        //-         ) Click to get session code!
-        //-         div(id="room_info_wrapper")
-        //- hr
-        //- div(class = "row mt-5 mb-5")
-        //-     div(class = "col-lg-6")
-        //-         h1 Join a session
-        //-         p(class = "text-muted") Request a session code from your group, paste it in the input field on the right, and join their brainstorming session!
-        //-     div(class = "col-lg-6")
-        //-         form(action="/room/join", method="post")
-        //-             input(type="text" name="code" placeholder="Session code" class = "w-100 rounded shadow-sm border mb-2 py-2 px-3")
-        //-             label(class='text-danger d-none' id = "join-error-lb")
-        //-             button(
-        //-                 type="submit" id="join-existing-session" class = "text-white pink-bg rounded shadow-sm border mb-4 py-2 px-3"
-        //-             ) Join
+                    type="submit" id="join-existing-session" class = "text-white pink-bg rounded shadow-sm border mb-4 py-2 px-3"
+                )
+                    i(class="fas fa-users mr-2")
+                    span Join
 
 block scripts
+    //- jQuery
+    script(src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous")
+
     //- Fontawesome kit
     script(src="https://kit.fontawesome.com/9122b51f87.js" crossorigin="anonymous")
     
