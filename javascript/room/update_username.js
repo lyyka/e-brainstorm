@@ -14,7 +14,8 @@ function updateUsername(e){
         type: "POST",
         data: {
             socket_id: user_socket_id,
-            username: username
+            username: username,
+            code: roomCode
         },
         async: true,
         cache: false

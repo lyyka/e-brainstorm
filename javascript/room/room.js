@@ -49,6 +49,9 @@ socket.on("connect", () => {
             // Get the old socket id
             const get_old_id_req = $.ajax({
                 url: "/socketid",
+                data:{
+                    code: roomCode
+                },
                 type: "GET",
                 async: true,
                 cache: false
@@ -61,7 +64,8 @@ socket.on("connect", () => {
                 const get_user_data_req = $.ajax({
                     url: "/users/get_data",
                     data: {
-                        socket_id: user_socket_id
+                        socket_id: user_socket_id,
+                        code: roomCode
                     },
                     type: "GET",
                     async: true,
@@ -75,6 +79,23 @@ socket.on("connect", () => {
         }
     })    
 })
+
+socket.on('disconnect', function(socket){
+    const req = $.ajax({
+        url: '/socket/disconnect',
+        data: {
+            code: roomCode
+        },
+        type: 'GET',
+        async: true,
+        cache: false
+    })
+    req.done(function(data){
+        if(data.success){
+            console.log('You have been disconnected');
+        }
+    });
+});
 
 function userDataToUI(){
     $("#username").text(user.username)
@@ -115,3 +136,20 @@ socket.on("update_users_count", function(data){
     const users_count = data.users_count
     document.getElementById('users_count').innerText = `${users_count} people brainstorming`
 });
+
+window.setTimeout(function(){
+    const get_old_id_req = $.ajax({
+        url: "/socketid",
+        data: {
+            code: roomCode
+        },
+        type: "GET",
+        async: true,
+        cache: false
+    })
+    get_old_id_req.done(function(data){
+        // console.log(data.socket_id);
+        $("#sid").text(data.socket_id)
+        // Get all user data and store it in global variable 'user'
+    })
+}, 1000)

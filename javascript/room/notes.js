@@ -13,7 +13,8 @@ function updateNotes(e){
             type: "POST",
             data: {
                 socket_id: user_socket_id,
-                notes: notes
+                notes: notes,
+                code: roomCode
             },
             async: true,
             cache: false

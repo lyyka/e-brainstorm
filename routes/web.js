@@ -6,7 +6,8 @@ class WebRouter{
         // Load controllers
         this.pages_controller = require("../controllers/PagesController.class.js")
         this.rooms_controller = require("../controllers/RoomsController.class.js")
-        this.rooms_functions_controller = require("../controllers/RoomFunctionsController.class.js")
+        // const rfc = require("../controllers/RoomFunctionsController.class.js");
+        // this.rooms_functions_controller = new rfc()
     }
 
     init_router(){
@@ -33,13 +34,16 @@ class WebRouter{
         // AJAX routes
 
         // Get socket id of the connection
-        this.app.get("/socketid", this.rooms_functions_controller.get_socket_id);
+        this.app.get("/socketid", this.rooms_controller.get_socket_id);
         this.app.post("/socketid/save_to_session", this.rooms_controller.set_socket_id_to_session);
+        this.app.get('/socket/disconnect', this.rooms_controller.socketDisconnectedClient);
 
         // Users
-        this.app.post("/users/update_notes", this.rooms_functions_controller.save_notes);
-        this.app.post("/users/update_username", this.rooms_functions_controller.update_username);
-        this.app.get("/users/get_data", this.rooms_functions_controller.get_user_data);
+        // post - req.body.
+        // get - req.query.
+        this.app.post("/users/update_notes", this.rooms_controller.save_notes);
+        this.app.post("/users/update_username", this.rooms_controller.update_username);
+        this.app.get("/users/get_data", this.rooms_controller.get_user_data);
     }
 }
 
