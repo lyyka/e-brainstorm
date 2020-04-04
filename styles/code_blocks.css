@@ -5,4 +5,5 @@
 .code-block-wrap > input{
     text-align: center;
     height: 75px;
+    outline: none;
 }
