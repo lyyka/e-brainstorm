@@ -1,17 +1,16 @@
-#users-list{
-    max-height: 400px;
-    overflow-y: auto;
-}
-
 #main-chat-wrap{
     display: none;
     z-index: 2;
     position: fixed;
     top: 0;
     right: 0;
-    height: 100vh;
-    width: 360px;
+    height: 100%;
+    width: 25%;
     border-left: 1px solid #e6e6e6;
+
+    -webkit-box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
+-moz-box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
+box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
 }
 
 .received-msg{

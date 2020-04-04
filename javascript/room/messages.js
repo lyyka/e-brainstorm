@@ -1,3 +1,4 @@
+let opened = false;
 $(document).ready(function(){
     // Fix positioning of elements in chat
     const controls_height = $("#msg-controls").outerHeight();
@@ -10,8 +11,13 @@ $(document).ready(function(){
 });
 
 function openChat(e){
-    $("#main-chat-wrap").show();
+    if (opened) { $("#main-chat-wrap").hide(); opened = false; }
+    else{
+        opened = true;
+        $("#main-chat-wrap").show();
+    }
 }
 function closeChat(e){
+    opened = false;
     $("#main-chat-wrap").hide();
 }
