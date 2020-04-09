@@ -12,6 +12,7 @@ class RoomFunctionsController{
         this.remove_point = this.remove_point.bind(this)
         this.allow_point = this.allow_point.bind(this)
         this.update_objects_and_points = this.update_objects_and_points.bind(this)
+        this.send_message = this.send_message.bind(this);
         this.save_notes = this.save_notes.bind(this);
         this.update_username = this.update_username.bind(this);
     }
@@ -23,11 +24,34 @@ class RoomFunctionsController{
         this.listeners(socket)
     }
 
+    // Add message to room (POST)
+    send_message(req){
+        const date = new Date();
+        if (req.body.text.trim() != ""){
+            const msg = {
+                sender: req.body.socket_id,
+                text: req.body.text,
+                date: {
+                    hours: date.getHours(),
+                    minutes: date.getMinutes(),
+                    day: date.getDate(),
+                    month: date.getMonth(),
+                    fullyear: date.getFullYear(),
+                }
+            }
+            this.parent.room.messages.push(msg);
+            this.io.to(this.parent.room.roomCode).emit("new_message", msg)
+            return true;
+        }
+        return false;
+    }
+
     // Saves users notes (POST)
     save_notes(req, res){
         req.session.user.notes = req.body.notes;
         return true;
     }
+
     // Saves users username (POST)
     update_username(req, res){
         if(req.body.username.length > 2 && req.body.username.length <= 16){

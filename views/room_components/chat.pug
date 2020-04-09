@@ -10,24 +10,24 @@ div(id = 'main-chat-wrap' class = 'bg-white border-left')
         //- All message bubbles will go in this container
         div(id = 'msgs-list')
             //- My message
-            div(
-            class = 'message text-right')
-                p(class = 'text-muted mb-0') 12:59
-                div(class = 'msg-cont')
-                    div(class='d-inline-block pink-bg text-white py-1 px-2 rounded shadow-sm border') Message!
+            //- div(
+            //- class = 'message text-right')
+            //-     p(class = 'text-muted mb-0') 12:59
+            //-     div(class = 'msg-cont')
+            //-         div(class='d-inline-block pink-bg text-white py-1 px-2 rounded shadow-sm border') Message!
             
             //- Received message
-            div(
-            class = 'message text-left')
-                p(class = 'text-muted mb-0') 00:00
-                div(class = 'msg-cont')
-                    div(class='d-inline-block received-msg text-dark py-1 px-2 rounded shadow-sm border') Response!
+            //- div(
+            //- class = 'message text-left')
+            //-     p(class = 'text-muted mb-0') 00:00
+            //-     div(class = 'msg-cont')
+            //-         div(class='d-inline-block received-msg text-dark py-1 px-2 rounded shadow-sm border') Response!
         //- Send messages, etc.
         div(id = 'msg-controls' class = 'border-top py-3 px-2 bg-white')
-            form.mb-0
+            div.mb-0
                 .form-row
                     .col-10
-                        input(type='text' class = 'w-100 px-2 py-2 rounded shadow-sm border'
+                        input(type='text' id = 'msg-input' class = 'w-100 px-2 py-2 rounded shadow-sm border'
                         placeholder = 'Type message...')
                     .col-2
                         button(type = 'button' id = 'send-msg' class = 'w-100 h-100 rounded shadow-sm border py-2 px-3 text-white pink-bg d-inline-block') 

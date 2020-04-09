@@ -31,6 +31,7 @@ socket.on("connect", () => {
             user = data.user
             userDataToUI()
             loadExistingIdeas()
+            loadExistingMessages();
         }
     })    
 })

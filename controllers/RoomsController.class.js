@@ -9,6 +9,8 @@ class RoomsController{
         this.join_room_through_code = this.join_room_through_code.bind(this)
         this.set_socket_id_to_session = this.set_socket_id_to_session.bind(this)
 
+        this.get_all_messages = this.get_all_messages.bind(this);
+        this.send_message = this.send_message.bind(this);
         this.add_idea = this.add_idea.bind(this);
         this.add_point = this.add_point.bind(this);
         this.remove_point = this.remove_point.bind(this);
@@ -20,6 +22,21 @@ class RoomsController{
     onConnection(socket){
         this.socket = socket
         this.listeners(socket)
+    }
+
+    // Get all messages
+    get_all_messages(req, res) {
+        res.send({
+            messages: this.rooms[req.session.current_room_code].room.messages
+        })
+    }
+
+    // Send message
+    send_message(req, res){
+        const sent = this.rooms[req.session.current_room_code][req.session.id_saved_under].send_message(req);
+        res.send({
+            success: sent
+        })
     }
 
     // Add idea
@@ -124,6 +141,7 @@ class RoomsController{
             this.rooms[room].room = {
                 roomCode: room,
                 ideas: [],
+                messages: [],
                 subject: "Brainstorm!",
             }
 

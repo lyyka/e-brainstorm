@@ -43,6 +43,10 @@ class WebRouter{
         // Users
         this.app.post("/users/update_notes", this.rooms_controller.save_notes);
         this.app.post("/users/update_username", this.rooms_controller.update_username);
+
+        // Messages
+        this.app.post("/messages/send", this.rooms_controller.send_message);
+        this.app.get("/messages/get_all", this.rooms_controller.get_all_messages);
     }
 }
 

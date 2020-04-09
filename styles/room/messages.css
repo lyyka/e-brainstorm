@@ -5,12 +5,13 @@
     top: 0;
     right: 0;
     height: 100%;
-    width: 25%;
+    /* width: 25%; */
+    width: 700px;
     border-left: 1px solid #e6e6e6;
 
     -webkit-box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
--moz-box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
-box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
+    -moz-box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
+    box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
 }
 
 .received-msg{
@@ -26,6 +27,15 @@ box-shadow: -5px 0px 15px -6px rgba(0,0,0,0.75);
     bottom: 0;
     left: 0;
     width: 100%;
+}
+
+.msg-cont > div{
+    max-width: 50%;
+    word-wrap: break-word;
+}
+
+.no-msgs-img{
+    opacity: 0.2;
 }
 
 @media screen and (max-width: 768px){
