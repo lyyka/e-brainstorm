@@ -32,6 +32,7 @@
 .msg-cont > div{
     max-width: 50%;
     word-wrap: break-word;
+    font-size: 1.1rem;
 }
 
 .no-msgs-img{

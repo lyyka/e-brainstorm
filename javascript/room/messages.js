@@ -1,4 +1,5 @@
 let opened = false;
+let msgs_list = [];
 $(document).ready(function(){
     // ui events
     $("#close-chat").click(closeChat)
@@ -33,10 +34,13 @@ function loadExistingMessages(){
         }
         else{
             const list = $("#msgs-list");
+            const centered_div = $("<div></div>");
+            centered_div.addClass("text-center");
             const img = $("<img/>");
-            img.attr('src', '/images/planet.png');
-            img.addClass("img-fluid no-msgs-img");
-            list.append(img);
+            img.attr('src', '/images/nomsgs.png');
+            img.addClass("img-fluid w-50 no-msgs-img");
+            centered_div.append(img);
+            list.append(centered_div);
         }
     });
 }
@@ -69,7 +73,7 @@ function msgReceived(msg){
 
     // Final message container
     const msg_main = $("<div></div>");
-    msg_main.addClass("d-inline-block py-1 px-2 rounded shadow-sm border");
+    msg_main.addClass("d-inline-block py-2 px-3 rounded shadow-sm border");
     msg_main.text(msg.text);
 
     // Separate users from other messages
@@ -84,12 +88,14 @@ function msgReceived(msg){
         msg_main.addClass("received-msg text-dark");
     }
 
-    msg_wrap.append(sender_text);
+    if(msgs_list.length == 0 || (msgs_list.length > 0 && msgs_list[msgs_list.length - 1].sender != msg.sender)){
+        msg_wrap.append(sender_text);
+    }
     msg_cont.append(msg_main);
     msg_wrap.append(msg_cont);
 
     list.append(msg_wrap);
-    // adjustPosition();
+    msgs_list.push(msg);
 }
 
 function sendMessage(e){
