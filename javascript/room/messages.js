@@ -1,5 +1,6 @@
-let opened = false;
+// let opened = false;
 let msgs_list = [];
+let nomsgs_removed = false;
 $(document).ready(function(){
     // ui events
     $("#close-chat").click(closeChat)
@@ -8,6 +9,8 @@ $(document).ready(function(){
     // Events
     $("#send-msg").click(sendMessage);
     $("#msg-input").keydown(inputEnter);
+    $("#remove-send-idea").click(endSendIdea); // little X btn
+    $("#ideas-panel").on('click', 'div.idea-block > div.idea-block-footer > span.send-idea-to-chat', sendIdeaToChat);
     socket.on("new_message", msgReceived)
 });
 
@@ -27,7 +30,7 @@ function loadExistingMessages(){
     })
     req.done(function (data) {
         if(data.messages.length > 0){
-            $(".no-msgs-img").remove();
+            // $(".no-msgs-img").remove();
             data.messages.forEach(msg => {
                 msgReceived(msg)
             })
@@ -45,7 +48,12 @@ function loadExistingMessages(){
     });
 }
 
-function msgReceived(msg){ 
+function msgReceived(msg){
+    if(!nomsgs_removed){
+        $(".no-msgs-img").remove();
+        nomsgs_removed = true;
+    }
+
     // Convert from 1 digit to 2 digit hours/minutes
     const convert_to_double = (number) => {
         let text = `${number}`;
@@ -60,6 +68,9 @@ function msgReceived(msg){
 
     // Wrap for message
     const msg_wrap = $("<div></div>");
+    if(msg.attachment != undefined){
+        msg_wrap.attr('attachment-id', msg.attachment);
+    }
     msg_wrap.addClass("message");
 
     // Par. to store the time/date
@@ -67,35 +78,52 @@ function msgReceived(msg){
     sender_text.addClass("text-muted mb-0");
     // date_text.text(`${convert_to_double(msg.date.hours)}:${convert_to_double(msg.date.minutes)}`);
 
-    // Message text container
-    const msg_cont = $("<div></div>");
-    msg_cont.addClass("msg-cont");
-
     // Final message container
     const msg_main = $("<div></div>");
-    msg_main.addClass("d-inline-block py-2 px-3 rounded shadow-sm border");
-    msg_main.text(msg.text);
+    msg_main.addClass("msg-cont d-inline-block py-2 px-3 rounded shadow-sm border");
+    msg_main.html($(`<div>${msg.text}</div>`));
 
     // Separate users from other messages
     if(msg.sender == user_socket_id){
         sender_text.text("Me");
         msg_wrap.addClass("text-right");
-        msg_main.addClass("pink-bg text-white");
+        msg_main.addClass("sent-msg mb-2 text-white");
     }
     else{
         sender_text.text(`User#${msg.sender.substring(msg.sender.indexOf('#', 0) + 1, msg.sender.indexOf('#', 0) + 6)}`);
         msg_wrap.addClass("text-left");
-        msg_main.addClass("received-msg text-dark");
+        msg_main.addClass("received-msg mb-2 text-dark");
     }
 
     if(msgs_list.length == 0 || (msgs_list.length > 0 && msgs_list[msgs_list.length - 1].sender != msg.sender)){
         msg_wrap.append(sender_text);
     }
-    msg_cont.append(msg_main);
-    msg_wrap.append(msg_cont);
 
-    list.append(msg_wrap);
+    if (msg.attachment != undefined){
+        const req = $.ajax({
+            url: '/ideas/get_idea',
+            type: 'GET',
+            data: {
+                id: msg.attachment
+            },
+            async: true,
+            cache: false
+        });
+        req.done(function (data) {
+            if(data.idea != undefined){
+                addIdeaToCustomWrap(data.idea, msg_main[0], true)
+                msg_wrap.append(msg_main);
+                list.append(msg_wrap);
+            }
+        });
+    }
+    else{
+        msg_wrap.append(msg_main);
+        list.append(msg_wrap);
+    }
+
     msgs_list.push(msg);
+    list.animate({ scrollTop: list.prop("scrollHeight") }, 1000);
 }
 
 function sendMessage(e){
@@ -104,13 +132,15 @@ function sendMessage(e){
     const msg_text = msg_input.val();
 
     if(msg_text.trim() != ""){
+        const attachment = msg_input.attr('attachment')
         // Make a request
         const req = $.ajax({
             url: '/messages/send',
             type: 'POST',
             data: {
                 socket_id: user_socket_id,
-                text: msg_text
+                text: msg_text,
+                attachment_idea_id: attachment
             },
             async: true,
             cache: false
@@ -120,9 +150,28 @@ function sendMessage(e){
             if (data.success) {
                 $(".no-msgs-img").remove();
                 msg_input.val("");
+                if(attachment != undefined){
+                    endSendIdea(null);
+                }
             }
         });
     }
+}
+
+function sendIdeaToChat(e){
+    const idea_html = $(this).parents().eq(1).clone();
+    idea_html.find(".send-idea-to-chat").remove();
+    $('#msg-input').attr('attachment', $(this).attr('id'));
+    $(".idea-to-send-wrap").html(idea_html);
+    $(".idea-attachment-wrap").removeClass("d-none");
+    openChat(undefined);
+}
+
+function endSendIdea(e){
+    $('#msg-input').removeAttr('attachment');
+    $(".idea-attachment-wrap").addClass("d-none");
+    $(this).parents().eq(1).find(".idea-to-send-wrap").empty();
+    adjustPosition();
 }
 
 function inputEnter(e){
@@ -132,15 +181,11 @@ function inputEnter(e){
 }
 
 function openChat(e){
-    if (opened) { $("#main-chat-wrap").hide(); opened = false; }
-    else{
-        opened = true;
-        $("#main-chat-wrap").show();
-        // Fix the positioning
-        adjustPosition();
-    }
+    $("#main-chat-wrap").show();
+    // Fix the positioning
+    adjustPosition();
 }
 function closeChat(e){
-    opened = false;
+    // opened = false;
     $("#main-chat-wrap").hide();
 }

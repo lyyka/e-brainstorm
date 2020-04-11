@@ -13,15 +13,13 @@ div(id = 'main-chat-wrap' class = 'bg-white border-left')
             //- div(
             //- class = 'message text-right')
             //-     p(class = 'text-muted mb-0') 12:59
-            //-     div(class = 'msg-cont')
-            //-         div(class='d-inline-block pink-bg text-white py-1 px-2 rounded shadow-sm border') Message!
+            //-     div(class='msg-cont d-inline-block pink-bg text-white py-1 px-2 rounded shadow-sm border') Message!
             
             //- Received message
             //- div(
             //- class = 'message text-left')
             //-     p(class = 'text-muted mb-0') 00:00
-            //-     div(class = 'msg-cont')
-            //-         div(class='d-inline-block received-msg text-dark py-1 px-2 rounded shadow-sm border') Response!
+            //-     div(class='msg-cont d-inline-block received-msg text-dark py-1 px-2 rounded shadow-sm border') Response!
         //- Send messages, etc.
         div(id = 'msg-controls' class = 'border-top py-3 px-2 bg-white')
             div.mb-0
@@ -33,3 +31,7 @@ div(id = 'main-chat-wrap' class = 'bg-white border-left')
                         button(type = 'button' id = 'send-msg' class = 'w-100 h-100 rounded shadow-sm border py-2 px-3 text-white pink-bg d-inline-block') 
                             i(class = 'fas fa-paper-plane')
                             //- span Send
+            div(class='mt-3 idea-attachment-wrap d-none')
+                p.text-right
+                    i(class = 'fas fa-times cursor-pointer' id = "remove-send-idea")
+                div.idea-to-send-wrap

@@ -31,6 +31,7 @@ class RoomFunctionsController{
             const msg = {
                 sender: req.body.socket_id,
                 text: req.body.text,
+                attachment: req.body.attachment_idea_id,
                 date: {
                     hours: date.getHours(),
                     minutes: date.getMinutes(),
@@ -87,6 +88,7 @@ class RoomFunctionsController{
                 author_username: req.session.user.username,
                 id: this.parent.room.ideas.length,
                 text: req.body.idea,
+                color_class: req.body.color_class,
                 date: Date.now(),
                 points: 0,
                 socket_ids_who_gave_point: [] // array of objects like {socket_id: ... , positive_point: true/false}

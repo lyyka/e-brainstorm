@@ -15,6 +15,7 @@ class RoomsController{
         this.add_point = this.add_point.bind(this);
         this.remove_point = this.remove_point.bind(this);
         this.get_all_ideas = this.get_all_ideas.bind(this);
+        this.get_idea_by_id = this.get_idea_by_id.bind(this);
         this.save_notes = this.save_notes.bind(this);
         this.update_username = this.update_username.bind(this);
     }
@@ -67,6 +68,13 @@ class RoomsController{
     get_all_ideas(req, res){
         res.send({
             ideas: this.rooms[req.session.current_room_code].room.ideas
+        })
+    }
+
+    // Get all ideas
+    get_idea_by_id(req, res) {
+        res.send({
+            idea: this.rooms[req.session.current_room_code].room.ideas[req.query.id]
         })
     }
 

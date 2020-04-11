@@ -39,6 +39,7 @@ class WebRouter{
         this.app.post('/ideas/add_point', this.rooms_controller.add_point);
         this.app.post('/ideas/remove_point', this.rooms_controller.remove_point);
         this.app.get('/ideas/get_all', this.rooms_controller.get_all_ideas);
+        this.app.get('/ideas/get_idea', this.rooms_controller.get_idea_by_id);
 
         // Users
         this.app.post("/users/update_notes", this.rooms_controller.save_notes);

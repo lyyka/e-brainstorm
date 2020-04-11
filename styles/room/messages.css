@@ -17,6 +17,9 @@
 .received-msg{
     background-color: #f1f0f0;
 }
+.sent-msg{
+    background-color: #ff70bd;
+}
 
 #messages-main-wrap{
     overflow-y: auto;
@@ -29,8 +32,8 @@
     width: 100%;
 }
 
-.msg-cont > div{
-    max-width: 50%;
+.msg-cont{
+    max-width: 75%;
     word-wrap: break-word;
     font-size: 1.1rem;
 }
