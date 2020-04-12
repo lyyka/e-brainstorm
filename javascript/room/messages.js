@@ -10,6 +10,7 @@ $(document).ready(function(){
     $("#send-msg").click(sendMessage);
     $("#msg-input").keydown(inputEnter);
     $("#remove-send-idea").click(endSendIdea); // little X btn
+    $("#remove-reply").click(removeReplyMsg); // little X btn
     $("#ideas-panel").on('click', 'div.idea-block > div.idea-block-footer > span.send-idea-to-chat', sendIdeaToChat);
     socket.on("new_message", msgReceived)
 });
@@ -68,7 +69,8 @@ function msgReceived(msg){
 
     // Wrap for message
     const msg_wrap = $("<div></div>");
-    if(msg.attachment != undefined){
+    msg_wrap.attr('id', msg.id);
+    if (msg.attachment != undefined) {
         msg_wrap.attr('attachment-id', msg.attachment);
     }
     msg_wrap.addClass("message");
@@ -80,13 +82,29 @@ function msgReceived(msg){
 
     // Reply button
     const reply = $("<span></span>")
+    reply.attr('msg-id', msg.id);
     reply.html('<i class="fas fa-reply"></i>')
     reply.addClass('align-middle text-muted cursor-pointer d-inline-block')
+    $(reply).click(replyToMessage);
 
     // Final message container
     const msg_main = $("<div></div>");
     msg_main.addClass("msg-cont d-inline-block py-2 px-3 rounded shadow-sm border");
-    msg_main.html($(`<div>${msg.text}</div>`));
+    // Add reply to msg if some
+    if (msg.reply_to_msg_id != undefined) {
+        const msg_text = msgs_list[msg.reply_to_msg_id].text;
+        if (msg_text.length > 20) {
+            msg_text = msg_text.substring(0, 20) + "...";
+        }
+        const reply_holder = $("<div></div>");
+        reply_holder.attr('scroll-to-msg-id', msgs_list[msg.reply_to_msg_id].id);
+        reply_holder.addClass('msg-cont-reply py-1 px-2 rounded shadow-sm border text-dark cursor-pointer');
+        reply_holder.text(msg_text)
+        $(reply_holder).click(scrollToPastMessage);
+
+        msg_main.append(reply_holder);
+    }
+    msg_main.append($(`<div>${msg.text}</div>`));
 
     // Separate users from other messages
     if(msg.sender == user_socket_id){
@@ -107,12 +125,16 @@ function msgReceived(msg){
         msg_wrap.append(sender_text);
     }
 
-    let reply_appended = false;
+    // Add reply button on left hand side or right hand side
     if (msg.sender == user_socket_id) {
         msg_wrap.append(reply);
-        reply_appended = true;
+        msg_wrap.append(msg_main);
     }
-
+    else{
+        msg_wrap.append(msg_main);
+        msg_wrap.append(reply);
+    }
+    
     if (msg.attachment != undefined){
         const req = $.ajax({
             url: '/ideas/get_idea',
@@ -126,24 +148,50 @@ function msgReceived(msg){
         req.done(function (data) {
             if(data.idea != undefined){
                 addIdeaToCustomWrap(data.idea, msg_main[0], true)
-                msg_wrap.append(msg_main);
-                if (!reply_appended) {
-                    msg_wrap.append(reply);
-                }
                 list.append(msg_wrap);
             }
         });
     }
     else{
-        msg_wrap.append(msg_main);
-        if(!reply_appended){
-            msg_wrap.append(reply);
-        }
         list.append(msg_wrap);
     }
 
-    msgs_list.push(msg);
-    list.animate({ scrollTop: list.prop("scrollHeight") }, 1000);
+    msgs_list.push(msg); // local arr
+    $("#messages-main-wrap").animate({ scrollTop: $("#messages-main-wrap").prop("scrollHeight") }, 100);
+}
+
+function scrollToPastMessage(e){
+    const scroll_to_id = $(this).attr('scroll-to-msg-id');
+    const msg_wrap = $('#msgs-list > #' + scroll_to_id);
+    const scrollPos = msg_wrap.position().top;
+    $('#messages-main-wrap').animate({ // animate your right div
+        scrollTop: scrollPos // to the position of the target 
+    }, 400);
+    msg_wrap.addClass('msg-cont-reply')
+    window.setTimeout(() => {
+        msg_wrap.removeClass('msg-cont-reply')
+    }, 1600);
+}
+
+function replyToMessage(e){
+    const id = $(this).attr('msg-id');
+    $('#msg-input').attr('reply-to', id);
+    const msg_html = $(this).parent().find('.msg-cont').clone();
+    msg_html.removeClass('pink-bg received-msg msg-cont');
+    msg_html.addClass('msg-cont-reply text-dark');
+    if(msg_html.text().length > 90){
+        msg_html.text(msg_html.text().substring(0, 90) + "...");
+    }
+    $('.msg-to-reply-to-wrap').html(msg_html);
+    $('.message-attachment-wrap').removeClass('d-none');
+    adjustPosition();
+}
+
+function removeReplyMsg(e){
+    $('#msg-input').removeAttr('reply-to');
+    $('.message-attachment-wrap').addClass('d-none');
+    $('.msg-to-reply-to-wrap').empty();
+    adjustPosition();
 }
 
 function sendMessage(e){
@@ -152,6 +200,7 @@ function sendMessage(e){
     const msg_text = msg_input.val();
 
     if(msg_text.trim() != ""){
+        const reply_to = msg_input.attr('reply-to')
         const attachment = msg_input.attr('attachment')
         // Make a request
         const req = $.ajax({
@@ -160,7 +209,8 @@ function sendMessage(e){
             data: {
                 socket_id: user_socket_id,
                 text: msg_text,
-                attachment_idea_id: attachment
+                attachment_idea_id: attachment,
+                reply_to: reply_to
             },
             async: true,
             cache: false
@@ -172,6 +222,9 @@ function sendMessage(e){
                 msg_input.val("");
                 if(attachment != undefined){
                     endSendIdea(null);
+                }
+                if(reply_to != undefined){
+                    removeReplyMsg(null);
                 }
             }
         });

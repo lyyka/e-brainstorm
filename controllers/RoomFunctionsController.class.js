@@ -29,10 +29,12 @@ class RoomFunctionsController{
         const date = new Date();
         if (req.body.text.trim() != ""){
             const msg = {
+                id: this.parent.room.messages.length,
                 sender: req.body.socket_id,
                 username: req.session.user.username,
                 text: req.body.text,
                 attachment: req.body.attachment_idea_id,
+                reply_to_msg_id: req.body.reply_to,
                 date: {
                     hours: date.getHours(),
                     minutes: date.getMinutes(),

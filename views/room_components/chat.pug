@@ -22,6 +22,11 @@ div(id = 'main-chat-wrap' class = 'bg-white border-left')
             //-     div(class='msg-cont d-inline-block received-msg text-dark py-1 px-2 rounded shadow-sm border') Response!
         //- Send messages, etc.
         div(id = 'msg-controls' class = 'border-top py-3 px-2 bg-white')
+            div(class='mb-3 message-attachment-wrap d-none')
+                p.text-center Reply to
+                p.text-right
+                    i(class = 'fas fa-times cursor-pointer' id = "remove-reply")
+                div.msg-to-reply-to-wrap
             div.mb-0
                 .form-row
                     .col-10
@@ -32,6 +37,7 @@ div(id = 'main-chat-wrap' class = 'bg-white border-left')
                             i(class = 'fas fa-paper-plane')
                             //- span Send
             div(class='mt-3 idea-attachment-wrap d-none')
+                p.text-center Attachments
                 p.text-right
                     i(class = 'fas fa-times cursor-pointer' id = "remove-send-idea")
                 div.idea-to-send-wrap

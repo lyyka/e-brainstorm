@@ -38,6 +38,10 @@
     font-size: 1.1rem;
 }
 
+.msg-cont-reply{
+    background-color: #e6e6e6;
+}
+
 .no-msgs-img{
     opacity: 0.2;
 }
