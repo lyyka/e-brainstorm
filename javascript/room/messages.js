@@ -78,6 +78,11 @@ function msgReceived(msg){
     sender_text.addClass("text-muted mb-0");
     // date_text.text(`${convert_to_double(msg.date.hours)}:${convert_to_double(msg.date.minutes)}`);
 
+    // Reply button
+    const reply = $("<span></span>")
+    reply.html('<i class="fas fa-reply"></i>')
+    reply.addClass('align-middle text-muted cursor-pointer d-inline-block')
+
     // Final message container
     const msg_main = $("<div></div>");
     msg_main.addClass("msg-cont d-inline-block py-2 px-3 rounded shadow-sm border");
@@ -88,15 +93,24 @@ function msgReceived(msg){
         sender_text.text("Me");
         msg_wrap.addClass("text-right");
         msg_main.addClass("sent-msg mb-2 text-white");
+        reply.addClass("mr-2");
     }
     else{
-        sender_text.text(`User#${msg.sender.substring(msg.sender.indexOf('#', 0) + 1, msg.sender.indexOf('#', 0) + 6)}`);
+        // sender_text.text(`User#${msg.sender.substring(msg.sender.indexOf('#', 0) + 1, msg.sender.indexOf('#', 0) + 6)}`);
+        sender_text.text(msg.username);
         msg_wrap.addClass("text-left");
         msg_main.addClass("received-msg mb-2 text-dark");
+        reply.addClass("ml-2");
     }
 
     if(msgs_list.length == 0 || (msgs_list.length > 0 && msgs_list[msgs_list.length - 1].sender != msg.sender)){
         msg_wrap.append(sender_text);
+    }
+
+    let reply_appended = false;
+    if (msg.sender == user_socket_id) {
+        msg_wrap.append(reply);
+        reply_appended = true;
     }
 
     if (msg.attachment != undefined){
@@ -113,12 +127,18 @@ function msgReceived(msg){
             if(data.idea != undefined){
                 addIdeaToCustomWrap(data.idea, msg_main[0], true)
                 msg_wrap.append(msg_main);
+                if (!reply_appended) {
+                    msg_wrap.append(reply);
+                }
                 list.append(msg_wrap);
             }
         });
     }
     else{
         msg_wrap.append(msg_main);
+        if(!reply_appended){
+            msg_wrap.append(reply);
+        }
         list.append(msg_wrap);
     }
 

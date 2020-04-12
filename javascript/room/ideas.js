@@ -234,15 +234,16 @@ function updatePoints(data){
         const node = ideas_wrap.childNodes[i];
         if(node.getAttribute('id') == data.idea_id){
             found = true;
-            const header_nodes = node.childNodes[0].childNodes[0].childNodes;
-            // If the card to be updated is from some user, so it has 3 elements in header (arrows + points text)
-            if(header_nodes.length == 3){
-                node.childNodes[0].childNodes[0].childNodes[2].innerText = data.points
-            }
-            else if(header_nodes.length == 1){
-                // If the card to be updated is from current user, so it has 1 element in header (points, NO ARROWS)
-                node.childNodes[0].childNodes[0].childNodes[0].innerText = data.points
-            }
+            $(node).find(".idea-points").text(data.points);
+            // const header_nodes = node.childNodes[0].childNodes[0].childNodes;
+            // // If the card to be updated is from some user, so it has 3 elements in header (arrows + points text)
+            // if(header_nodes.length == 3){
+            //     node.childNodes[0].childNodes[0].childNodes[2].innerText = data.points
+            // }
+            // else if(header_nodes.length == 1){
+            //     // If the card to be updated is from current user, so it has 1 element in header (points, NO ARROWS)
+            //     node.childNodes[0].childNodes[0].childNodes[0].innerText = data.points
+            // }
         }
     }
 
@@ -253,15 +254,16 @@ function updatePoints(data){
         const node = msgs_wrap.childNodes[i]; // div.message
         if (node.getAttribute('attachment-id') == data.idea_id) {
             found = true;
-            const header = node.childNodes[1].childNodes[1].childNodes[0].childNodes[0];
-            // If the card to be updated is from some user, so it has 3 elements in header (arrows + points text)
-            if (header.childNodes.length == 3) {
-                header.childNodes[2].innerText = data.points
-            }
-            else if (header.childNodes.length == 1) {
-                // If the card to be updated is from current user, so it has 1 element in header (points, NO ARROWS)
-                header.childNodes[0].innerText = data.points
-            }
+            $(node).find(".idea-points").text(data.points);
+        //     const header = node.childNodes[1].childNodes[1].childNodes[0].childNodes[0];
+        //     // If the card to be updated is from some user, so it has 3 elements in header (arrows + points text)
+        //     if (header.childNodes.length == 3) {
+        //         header.childNodes[2].innerText = data.points
+        //     }
+        //     else if (header.childNodes.length == 1) {
+        //         // If the card to be updated is from current user, so it has 1 element in header (points, NO ARROWS)
+        //         header.childNodes[0].innerText = data.points
+        //     }
         }
     }
 }

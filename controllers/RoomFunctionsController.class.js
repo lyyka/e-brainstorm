@@ -30,6 +30,7 @@ class RoomFunctionsController{
         if (req.body.text.trim() != ""){
             const msg = {
                 sender: req.body.socket_id,
+                username: req.session.user.username,
                 text: req.body.text,
                 attachment: req.body.attachment_idea_id,
                 date: {
@@ -56,7 +57,16 @@ class RoomFunctionsController{
     // Saves users username (POST)
     update_username(req, res){
         if(req.body.username.length > 2 && req.body.username.length <= 16){
+
+            // update in all messages too
+            this.parent.room.messages.forEach(message => {
+                if(message.username == req.session.user.username){
+                    message.username = req.body.username;
+                }                
+            });
+
             req.session.user.username = req.body.username;
+
             return true;
         }
         else{
