@@ -92,14 +92,21 @@ function msgReceived(msg){
     msg_main.addClass("msg-cont d-inline-block py-2 px-3 rounded shadow-sm border");
     // Add reply to msg if some
     if (msg.reply_to_msg_id != undefined) {
-        const msg_text = msgs_list[msg.reply_to_msg_id].text;
-        if (msg_text.length > 20) {
-            msg_text = msg_text.substring(0, 20) + "...";
+        // let msg_text = msgs_list[msg.reply_to_msg_id].text;
+        let msg_text;
+        if (msgs_list[msg.reply_to_msg_id].attachment != undefined){
+            msg_text =`<i class="fas fa-lightbulb mr-2"></i> Idea attached`
+        }
+        else if (msgs_list[msg.reply_to_msg_id].text.length > 20) {
+            msg_text = msgs_list[msg.reply_to_msg_id].text.substring(0, 20) + "...";
+        }
+        else{
+            msg_text = msgs_list[msg.reply_to_msg_id].text;
         }
         const reply_holder = $("<div></div>");
         reply_holder.attr('scroll-to-msg-id', msgs_list[msg.reply_to_msg_id].id);
-        reply_holder.addClass('msg-cont-reply py-1 px-2 rounded shadow-sm border text-dark cursor-pointer');
-        reply_holder.text(msg_text)
+        reply_holder.addClass('msg-cont-reply py-1 px-2 cursor-pointer');
+        reply_holder.html(msg_text)
         $(reply_holder).click(scrollToPastMessage);
 
         msg_main.append(reply_holder);
@@ -165,12 +172,12 @@ function scrollToPastMessage(e){
     const msg_wrap = $('#msgs-list > #' + scroll_to_id);
     const scrollPos = msg_wrap.position().top;
     $('#messages-main-wrap').animate({ // animate your right div
-        scrollTop: scrollPos // to the position of the target 
+        scrollTop: msg_wrap.offset().top - $("#msgs-list").offset().top // to the position of the target 
     }, 400);
-    msg_wrap.addClass('msg-cont-reply')
+    msg_wrap.addClass('msg-cont-reply-loaded')
     window.setTimeout(() => {
-        msg_wrap.removeClass('msg-cont-reply')
-    }, 1600);
+        msg_wrap.removeClass('msg-cont-reply-loaded')
+    }, 2200);
 }
 
 function replyToMessage(e){
@@ -178,7 +185,7 @@ function replyToMessage(e){
     $('#msg-input').attr('reply-to', id);
     const msg_html = $(this).parent().find('.msg-cont').clone();
     msg_html.removeClass('pink-bg received-msg msg-cont');
-    msg_html.addClass('msg-cont-reply text-dark');
+    msg_html.addClass('msg-cont-reply-loaded text-dark');
     if(msg_html.text().length > 90){
         msg_html.text(msg_html.text().substring(0, 90) + "...");
     }

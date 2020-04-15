@@ -38,8 +38,16 @@
     font-size: 1.1rem;
 }
 
-.msg-cont-reply{
+/* On bottom above input */
+.msg-cont-reply-loaded{
     background-color: #e6e6e6;
+}
+
+/* In the messages */
+.msg-cont-reply{
+    background-color: transparent;
+    border-left: 1px solid #e0e0e0;
+    color: #e0e0e0;
 }
 
 .no-msgs-img{
